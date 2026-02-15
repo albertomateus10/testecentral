@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Central de Apoio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <div id="toast-container"></div>
+    <div id="sidebar-overlay"></div>
+    <div class="shell" id="shell">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo" title="Grupo San Marino">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2.5c4.2 0 7.6 3.4 7.6 7.6 0 5.4-7.6 11.8-7.6 11.8S4.4 15.5 4.4 10.1C4.4 5.9 7.8 2.5 12 2.5Z"
+                stroke="white" stroke-width="1.8" />
+              <path d="M9.2 10.2l1.8 1.8 3.9-4.2" stroke="white" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="brand-title">
+            <strong>Grupo San Marino</strong>
+            <span>Desenvolvido por <strong>Alberto Mateus</strong></span>
+          </div>
+        </div>
+
+        <div class="topbar-center">
+          <div class="title-pill" onclick="alternarSecao('gerador')" title="Voltar para o Início">
+            <span class="dot"></span>
+            <h1>CENTRAL DE APOIO</h1>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="search-wrapper">
+            <div class="search-input-container" id="searchContainer">
+              <input type="text" id="globalSearchInput" placeholder="Localizar..." autocomplete="off">
+            </div>
+            <button class="icon-btn" id="btnSearch" title="Localizar (Ctrl+F)" aria-label="Localizar">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
+          </div>
+
+          <button class="icon-btn" id="btnHome" onclick="alternarSecao('gerador')" title="Início" aria-label="Início">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </button>
+
+          <div class="chip" title="Informações">
+            <small>Visitas:</small> <b id="visits-count">...</b>
+          </div>
+
+
+
+          <button class="icon-btn" id="btnSidebar" title="Recolher/Expandir menu" aria-label="Recolher/Expandir menu">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <div class="label"></div>
+        </div>
+
+        <nav class="nav" id="nav">
+          <a href="#gerador" class="active" id="btn-gerador" onclick="alternarSecao('gerador')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor"
+                stroke-width="1.8" />
+              <path d="M14 3v4h4" stroke="currentColor" stroke-width="1.8" />
+            </svg>
+            <span>Gerador de Documentos</span>
+          </a>
+
+          <a href="#calculadora" id="btn-calculadora" onclick="alternarSecao('calculadora')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor"
+                stroke-width="1.8" />
+              <path d="M8 7h8M9 11h2m2 0h2M9 15h2m2 0h2" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+            </svg>
+            <span>Calculadora</span>
+          </a>
+
+          <a href="#bancos" id="btn-bancos" onclick="alternarSecao('bancos')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 10h16M6 10V19m4-9V19m4-9V19m4-9V19" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+              <path d="M3.5 10 12 4l8.5 6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            </svg>
+            <span>Bancos</span>
+          </a>
+
+          <a href="#certidoes" id="btn-certidoes" onclick="alternarSecao('certidoes')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 3h10a2 2 0 0 1 2 2v16l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2Z" stroke="currentColor"
+                stroke-width="1.8" />
+              <path d="M8 7h8M8 11h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span>Certidões</span>
+          </a>
+
+          <a href="#venda-direta" id="btn-venda-direta" onclick="alternarSecao('venda-direta')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 7h16v10H4z" stroke="currentColor" stroke-width="1.8" />
+              <path d="M7 17h10M8 7l2 10m6-10-2 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span>Venda Direta</span>
+          </a>
+
+          <a href="#cartas" id="btn-cartas" onclick="alternarSecao('cartas')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M2 20V4l8 4 8-4v16H2Z" stroke="currentColor" stroke-width="1.8" />
+              <path d="M6 10v2m4-2v2m4-2v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span>Montadora</span>
+          </a>
+
+          <a href="#plataformas" id="btn-plataformas" onclick="alternarSecao('plataformas')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="1.8" />
+              <path d="M4 11h3M17 11h3M11 4v3M11 17v3" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+            </svg>
+            <span>Plataformas e Sistemas</span>
+          </a>
+
+          <a href="#seminovos" id="btn-seminovos" onclick="alternarSecao('seminovos')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M6 16.5l1.5-6h9L18 16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M7.5 10.5 9 7.5h6l1.5 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M7 16.5h10M8 18.5h2m4 0h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span>Seminovos</span>
+          </a>
+
+          <a href="#pos-vendas" id="btn-pos-vendas" onclick="alternarSecao('pos-vendas')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 14l6-6 4 4 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M20 20H4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span>Pós Vendas</span>
+          </a>
+
+          <a href="#rh-dp" id="btn-rh-dp" onclick="alternarSecao('rh-dp')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            <span>RH/DP</span>
+          </a>
+
+          <a href="#gestor" id="btn-gestor" onclick="alternarSecao('gestor')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>Acessos dos Gestores</span>
+          </a>
+
+          <a href="#lojas" id="btn-lojas" onclick="alternarSecao('lojas')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11Z" stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 10.2a2.3 2.3 0 1 0 0 .01Z" stroke="currentColor" stroke-width="1.8" />
+            </svg>
+            <span>Localização das Lojas</span>
+          </a>
+
+          <a href="#acessorios" id="btn-acessorios" onclick="alternarSecao('acessorios')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M10 13a5 5 0 0 1 0-7l1.2-1.2a5 5 0 0 1 7 7L17 13" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+              <path d="M14 11a5 5 0 0 1 0 7L12.8 19.2a5 5 0 1 1-7-7L7 11" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+            </svg>
+            <span>Catálogo de Acessórios</span>
+          </a>
+
+          <a href="#links" id="btn-links" onclick="alternarSecao('links')">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M10 13a5 5 0 0 1 0-7l1.2-1.2a5 5 0 0 1 7 7L17 13" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+              <path d="M14 11a5 5 0 0 1 0 7L12.8 19.2a5 5 0 1 1-7-7L7 11" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+            </svg>
+            <span>Links Úteis</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="meta"
+            style="padding: 12px; border-radius: 12px; background: rgba(15, 23, 42, 0.03); border: 1px solid var(--stroke); display: flex; justify-content: center; align-items: center;">
+            <div class="meta-text" style="text-align: center; width: 100%;">
+              <span style="font-size: 12px; opacity: 0.8;">Desenvolvido por <b>Alberto Mateus</b></span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main" id="main">
+        <div class="main-head">
+          <div>
+            <h2 id="pageTitle">Gerador de Documentos</h2>
+            <p id="page subtitle"></p>
+          </div>
+
+
+        </div>
+
+        <section class="grid-tiles">
+
+          <!-- Seção: Gerador de Documentos (Submenu) -->
+          <div class="cover hidden col-12" id="secao-gerador" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <button class="cover-btn" id="btn-doc-recebimento" type="button"
+                onclick="abrirDocumento('doc-recebimento')">
+                <div class="cover-doc-pill">PROCURAÇÃO DE RECEBIMENTO DO USADO</div>
+              </button>
+              <button class="cover-btn" id="btn-doc-acordo" type="button" onclick="abrirDocumento('doc-acordo')">
+                <div class="cover-doc-pill">PROCURAÇÃO DE ACORDO</div>
+              </button>
+              <button class="cover-btn" id="btn-doc-instrumento" type="button"
+                onclick="abrirDocumento('doc-instrumento')">
+                <div class="cover-doc-pill">INSTRUMENTO DE RESPONSABILIDADE</div>
+              </button>
+              <button class="cover-btn" id="btn-doc-quitacao" type="button" onclick="abrirDocumento('doc-quitacao')">
+                <div class="cover-doc-pill">TERMO DE QUITAÇÃO (veículo de terceiros)</div>
+              </button>
+              <button class="cover-btn" id="btn-doc-residencia" type="button"
+                onclick="abrirDocumento('doc-residencia')">
+                <div class="cover-doc-pill">DECLARAÇÃO DE RESIDÊNCIA</div>
+              </button>
+              <button class="cover-btn" id="btn-doc-deposito" type="button" onclick="abrirDocumento('doc-deposito')">
+                <div class="cover-doc-pill">DECLARAÇÃO DE DEPÓSITO PARA TERCEIROS</div>
+              </button>
+              <button class="cover-btn" id="btn-doc-orcamento" type="button" onclick="abrirDocumento('doc-orcamento')">
+                <div class="cover-doc-pill">ORÇAMENTO DE DETRAN</div>
+              </button>
+            </div>
+
+            <!-- Dados do Cliente Global (MUDADO PARA DENTRO DO GERADOR) -->
+            <div class="doc-card hidden" id="dados-cliente-global" style="margin-top: 15px;">
+              <div class="section-title"
+                style="border-top: none; margin-top: 0; padding-top: 0; font-size: 15px; margin-bottom: 20px; color: #1e293b; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-user-pen"></i>&nbsp; DADOS DO CLIENTE (Preencha uma vez para todos os documentos)
+              </div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="global_nomeCompleto">Nome Completo</label>
+                  <input type="text" id="global_nomeCompleto" placeholder="NOME COMPLETO DO CLIENTE"
+                    oninput="replicarDadosCliente()">
+                </div>
+                <div class="form-item">
+                  <label for="global_cpfCnpj">CPF/CNPJ</label>
+                  <input type="text" id="global_cpfCnpj" placeholder="000.000.000-00" oninput="replicarDadosCliente()">
+                </div>
+                <div class="form-item">
+                  <label for="global_endereco">Endereço</label>
+                  <input type="text" id="global_endereco" placeholder="RUA/AV, NÚMERO, COMPLEMENTO"
+                    oninput="replicarDadosCliente()">
+                </div>
+                <div class="form-item">
+                  <label for="global_bairro">Bairro</label>
+                  <input type="text" id="global_bairro" placeholder="NOME DO BAIRRO" oninput="replicarDadosCliente()">
+                </div>
+                <div class="form-item">
+                  <label for="global_cep">CEP</label>
+                  <input type="text" id="global_cep" placeholder="00000-000" oninput="replicarDadosCliente()">
+                </div>
+                <div class="form-item">
+                  <label for="global_cidade">Cidade</label>
+                  <input type="text" id="global_cidade" placeholder="NOME DA CIDADE" oninput="replicarDadosCliente()">
+                </div>
+                <div class="form-item">
+                  <label for="global_estado">Estado</label>
+                  <input type="text" id="global_estado" placeholder="SIGLA DO ESTADO" oninput="replicarDadosCliente()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção: Bancos (Submenu) -->
+          <div class="cover hidden col-12" id="secao-bancos" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://autofacil.stellantisfinanciamentos.com.br/login" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">PSA (Stellantis)</div>
+              </a>
+              <a href="https://digital.bancovw.com.br/FrontEnd/login" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">VOLKS</div>
+              </a>
+              <a href="https://www.credlineitau.com.br/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">ITAÚ CREDLINE</div>
+              </a>
+              <a href="https://financiamentos.bradesco/financiamentos/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">BRADESCO</div>
+              </a>
+              <a href="https://financeira.safra.com.br/portal-veiculos/login" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">SAFRA</div>
+              </a>
+              <a href="https://c6auto.com.br/originacaolojista/login" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">C6 AUTO</div>
+              </a>
+              <a href="https://parceiro.bv.com.br/ng-gpar-base-login/#" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">BV FINANCEIRA</div>
+              </a>
+              <a href="https://veiculos.bancopan.com.br/login" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">BANCO PAN</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Certidões (Submenu) -->
+          <div class="cover hidden col-12" id="secao-certidoes" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://www2.trf4.jus.br/trf4/processos/certidao/index.php?string_cpf=01525186060"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">CERTIDÃO JUDICIAL</div>
+              </a>
+              <a href="https://www.tst.jus.br/certidao1" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">CERTIDÃO TRABALHISTA</div>
+              </a>
+              <a href="https://www.tjrs.jus.br/novo/processos-e-servicos/servicos-processuais/emissao-de-antecedentes-e-certidoes/"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">ANTECEDENTES TJRS</div>
+              </a>
+              <a href="https://pje.trt4.jus.br/certidoes/inicio" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">CERTIDÕES TRT4</div>
+              </a>
+              <a href="https://servicos.receitafederal.gov.br/servico/certidoes/#/home" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">CERTIDÃO REGULARIDADE FISCAL</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Venda Direta (Submenu) -->
+          <div class="cover hidden col-12" id="secao-venda-direta" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">CARTÃO CNPJ</div>
+              </a>
+              <a href="https://www.sefaz.rs.gov.br/consultas/contribuinte" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">INSCRIÇÃO ESTADUAL</div>
+              </a>
+              <a href="https://dfe-portal.svrs.rs.gov.br/cte/ccc?origem=2" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">IE PRODUTOR RURAL</div>
+              </a>
+              <a href="https://ws.bndes.gov.br/cfi_catalogo/produto/04281040" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">BNDES FIORINO</div>
+              </a>
+              <a href="https://ws.bndes.gov.br/cfi_catalogo/produto/04260579" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">BNDES STRADA FREEDOM</div>
+              </a>
+              <a href="#" target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">CONTRATO DE VD</div>
+              </a>
+              <a href="https://ws.bndes.gov.br/cfi_catalogo/produto/04263917" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">BNDES STRADA ENDURANCE</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Plataformas (Submenu) -->
+          <div class="cover hidden col-12" id="secao-plataformas" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="http://152.67.47.29:8080/crmgold/veiculo.zul" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">NBS GOLD</div>
+              </a>
+              <a href="https://apps.docusign.com/send/home" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">DOCUSIGN</div>
+              </a>
+              <a href="https://apps.autoavaliar.com.br/login/app" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">AUTOAVALIAR</div>
+              </a>
+              <a href="https://app.dugestao.com.br/#/home" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">DUGESTÃO</div>
+              </a>
+              <a href="https://app.duleads.com.br/#/auth" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">DULEADS</div>
+              </a>
+              <a href="https://psa.csod.com/login/render.aspx?id=stellantistraining" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">PORTAL DE TREINAMENTOS FIAT</div>
+              </a>
+              <a href="https://linkentry-ames.fiat.com/pages/home/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">LinkEntry</div>
+              </a>
+              <a href="https://drive.google.com/drive/folders/11Oyq1zN6VKhpaDZleNjchiB-Fdp0AyPZ?usp=sharing"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">Manuais do NBS</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Cartas do Mês (Submenu) -->
+          <div class="cover hidden col-12" id="secao-cartas" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://albertomateus10.github.io/pdfsdomes/cartafiat.pdf" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">CARTA DO MÊS (Montadora)</div>
+              </a>
+              <a href="https://albertomateus10.github.io/pdfsdomes/cartabanco.pdf" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">CARTA DO MÊS (Banco)</div>
+              </a>
+              <a href="https://albertomateus10.github.io/pdfsdomes/gama.pdf" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">GAMA ATUALIZADA</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Seminovos (Submenu) -->
+          <div class="cover hidden col-12" id="secao-seminovos" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://sanmarinomultimarcas.com.br/seminovos/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">ESTOQUE DE SEMINOVOS</div>
+              </a>
+              <a href="https://sanmarinomultimarcas.com.br/outlet/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">ESTOQUE OUTLET</div>
+              </a>
+              <a href="https://albertomateus10.github.io/termoderepassefuncionario/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">TERMO DE REPASSE PARA FUNCIONÁRIO</div>
+              </a>
+              <button class="cover-btn" type="button" onclick="abrirDocumento('doc-contrato')">
+                <div class="cover-doc-pill">TEXTO LEGAL (Seminovos/Outlet)</div>
+              </button>
+              <a href="https://albertomateus10.github.io/preparacaoparaentrega/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">CHECKLIST de ENTREGA (Seminovo)</div>
+              </a>
+              <a href="https://chatgpt.com/g/g-67b0af6b29708191982adcba7a5e3fb4-clique-aqui-e-crie-um-anuncio-para-o-seu-veiculo"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">ROBÔ DE ANÚNCIOS</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Gestor (Submenu) -->
+          <div class="cover hidden col-12" id="secao-gestor" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="http://144.22.144.53/" target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">NBS SHOTCUT</div>
+              </a>
+              <a href="https://portal.gestautobrasil.com.br/auth/login" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">PORTAL GESTAUTO</div>
+              </a>
+              <a href="https://app.autocorp.com.br/portal/Default.aspx?ReturnUrl=%2frestrito%2fpainel-controle%2fdefault.aspx"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">AUTOCORP</div>
+              </a>
+              <a href="https://albertomateus10.github.io/avaliacoes/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">BI DE AVALIAÇÕES</div>
+              </a>
+              <a href="https://albertomateus10.github.io/carteiravdusados/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">USADOS VIA VD</div>
+              </a>
+              <a href="https://adm.autoavaliar.com.br/index.php" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">LEILÃO DO AUTOAVALIAR</div>
+              </a>
+              <a href="https://albertomateus10.github.io/contratodecompradeveiculos/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">CONTRATO DE COMPRA DE VEÍCULOS</div>
+              </a>
+              <a href="https://albertomateus10.github.io/procuracaoderepasse/" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">PROCURAÇÃO DE REPASSE</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Pós Vendas (Submenu) -->
+          <div class="cover hidden col-12" id="secao-pos-vendas" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://drive.google.com/drive/folders/1pVktoHOniUgT5LQfnjxWhDGAB1r3-LVn" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">NORMAS DA GARANTIA</div>
+              </a>
+              <a href="https://drive.google.com/drive/folders/1dn-1v52zMjZCnBZRgHCkAdViAOBfOG2b" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">APOIO AO CONSULTOR</div>
+              </a>
+              <a href="https://drive.google.com/drive/folders/1alytD0dOACelokORixMLNd99Ixe77han" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">APOIO AO MECÂNICO</div>
+              </a>
+            </div>
+          </div>
+
+          <div class="cover hidden col-12" id="secao-rh-dp" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://albertomateus10.github.io/pdfsdomes/cartilha.pdf" target="_blank" class="cover-btn"
+                style="text-decoration: none;">
+                <div class="cover-doc-pill">CARTILHA DE INTEGRAÇÃO</div>
+              </a>
+              <a href="https://drive.google.com/drive/folders/1sPzfiY9CRUWoITpdj0wQVnDMNx9YbIT8?usp=sharing"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">CARTA DE FÉRIAS</div>
+              </a>
+              <a href="#" target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">AJUSTE DE PONTO</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Seção: Localização das Lojas (Submenu) -->
+          <div class="cover hidden col-12" id="secao-lojas" style="margin-top: 15px;">
+            <div style="max-width: 700px; margin: 0 auto;">
+
+              <!-- MATRIZ -->
+              <div class="link-section" style="padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <a href="matriz.jpeg" target="_blank" title="Clique para abrir e baixar"
+                    style="width: 60px; height: 60px; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;">
+                    <img src="matriz.jpeg" alt="San Marino Matriz"
+                      style="width: 100%; height: 100%; object-fit: cover;">
+                  </a>
+                  <div>
+                    <div style="font-weight: 900; color: #1e3a8a; font-size: 14px;">MATRIZ</div>
+                    <div style="font-size: 11px; color: var(--muted);">Av. Ipiranga, 7110 - Porto Alegre</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="https://maps.app.goo.gl/9JXa77im6c8KK72w6" target="_blank" class="btn"
+                    style="flex: 1; min-width: 150px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; text-decoration: none; font-size: 12px;">
+                    <i class="fa-solid fa-map-location-dot"></i>&nbsp; Ver no Mapa
+                  </a>
+                  <button class="btn"
+                    style="flex: 2; min-width: 200px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; font-size: 11px;"
+                    onclick="copiarLink('https://maps.app.goo.gl/9JXa77im6c8KK72w6')">
+                    <i class="fa-regular fa-copy"></i>&nbsp; copie o link e cole no whats do cliente
+                  </button>
+                </div>
+              </div>
+
+              <!-- ZONA SUL -->
+              <div class="link-section" style="padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <a href="zonasul.jpeg" target="_blank" title="Clique para abrir e baixar"
+                    style="width: 60px; height: 60px; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;">
+                    <img src="zonasul.jpeg" alt="San Marino Zona Sul"
+                      style="width: 100%; height: 100%; object-fit: cover;">
+                  </a>
+                  <div>
+                    <div style="font-weight: 900; color: #1e3a8a; font-size: 14px;">ZONA SUL</div>
+                    <div style="font-size: 11px; color: var(--muted);">Av. Otto Niemeyer, 650 - Bairro Tristeza, Porto
+                      Alegre
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="https://maps.app.goo.gl/6JWn6nwzN2zYsqpE7" target="_blank" class="btn"
+                    style="flex: 1; min-width: 150px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; text-decoration: none; font-size: 12px;">
+                    <i class="fa-solid fa-map-location-dot"></i>&nbsp; Ver no Mapa
+                  </a>
+                  <button class="btn"
+                    style="flex: 2; min-width: 200px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; font-size: 11px;"
+                    onclick="copiarLink('https://maps.app.goo.gl/6JWn6nwzN2zYsqpE7')">
+                    <i class="fa-regular fa-copy"></i>&nbsp; copie o link e cole no whats do cliente
+                  </button>
+                </div>
+              </div>
+
+              <!-- GRAVATAÍ -->
+              <div class="link-section" style="padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <a href="gravatai.jpeg" target="_blank" title="Clique para abrir e baixar"
+                    style="width: 60px; height: 60px; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;">
+                    <img src="gravatai.jpeg" alt="San Marino Gravataí"
+                      style="width: 100%; height: 100%; object-fit: cover;">
+                  </a>
+                  <div>
+                    <div style="font-weight: 900; color: #1e3a8a; font-size: 14px;">GRAVATAÍ</div>
+                    <div style="font-size: 11px; color: var(--muted);">Pda. 61, RS-020, 280 - Bairro Vera Cruz, Gravataí
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="https://maps.app.goo.gl/eyiSQ1vSy2q2MJpa8" target="_blank" class="btn"
+                    style="flex: 1; min-width: 150px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; text-decoration: none; font-size: 12px;">
+                    <i class="fa-solid fa-map-location-dot"></i>&nbsp; Ver no Mapa
+                  </a>
+                  <button class="btn"
+                    style="flex: 2; min-width: 200px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; font-size: 11px;"
+                    onclick="copiarLink('https://maps.app.goo.gl/eyiSQ1vSy2q2MJpa8')">
+                    <i class="fa-regular fa-copy"></i>&nbsp; copie o link e cole no whats do cliente
+                  </button>
+                </div>
+              </div>
+
+              <!-- MULTIMARCAS -->
+              <div class="link-section" style="padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <a href="Multimarcas.jpeg" target="_blank" title="Clique para abrir e baixar"
+                    style="width: 60px; height: 60px; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;">
+                    <img src="Multimarcas.jpeg" alt="San Marino Multimarcas"
+                      style="width: 100%; height: 100%; object-fit: cover;">
+                  </a>
+                  <div>
+                    <div style="font-weight: 900; color: #1e3a8a; font-size: 14px;">MULTIMARCAS</div>
+                    <div style="font-size: 11px; color: var(--muted);">Pda. 61, RS-020, 220 - Bairro Vera Cruz, Gravataí
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="https://maps.app.goo.gl/Gs2jGm9dMUxUEFjv9" target="_blank" class="btn"
+                    style="flex: 1; min-width: 150px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; text-decoration: none; font-size: 12px;">
+                    <i class="fa-solid fa-map-location-dot"></i>&nbsp; Ver no Mapa
+                  </a>
+                  <button class="btn"
+                    style="flex: 2; min-width: 200px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; font-size: 11px;"
+                    onclick="copiarLink('https://maps.app.goo.gl/Gs2jGm9dMUxUEFjv9')">
+                    <i class="fa-regular fa-copy"></i>&nbsp; copie o link e cole no whats do cliente
+                  </button>
+                </div>
+              </div>
+
+              <!-- VIAMÃO -->
+              <div class="link-section" style="padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <a href="Viamão.jpeg" target="_blank" title="Clique para abrir e baixar"
+                    style="width: 60px; height: 60px; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;">
+                    <img src="Viamão.jpeg" alt="San Marino Viamão"
+                      style="width: 100%; height: 100%; object-fit: cover;">
+                  </a>
+                  <div>
+                    <div style="font-weight: 900; color: #1e3a8a; font-size: 14px;">VIAMÃO</div>
+                    <div style="font-size: 11px; color: var(--muted);">Av. Sen. Salgado Filho, 9775 - Bairro Jardim
+                      Krahe,
+                      Viamão</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="https://maps.app.goo.gl/6Rpe55NcW35yD6dCA" target="_blank" class="btn"
+                    style="flex: 1; min-width: 150px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; text-decoration: none; font-size: 12px;">
+                    <i class="fa-solid fa-map-location-dot"></i>&nbsp; Ver no Mapa
+                  </a>
+                  <button class="btn"
+                    style="flex: 2; min-width: 200px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e3a8a; box-shadow: none; border: 1px solid #e2e8f0; font-size: 11px;"
+                    onclick="copiarLink('https://maps.app.goo.gl/6Rpe55NcW35yD6dCA')">
+                    <i class="fa-regular fa-copy"></i>&nbsp; copie o link e cole no whats do cliente
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- =========================
+         ÁREA DOS DOCUMENTOS (ocultos até clicar)
+         ========================= -->
+
+          <!-- =========================
+         DADOS GLOBAIS DO CLIENTE
+         ========================= -->
+
+
+          <!-- Seção: Catálogo de Acessórios (Submenu) -->
+          <div class="cover hidden col-12" id="secao-acessorios" style="margin-top: 20px;">
+            <div class="cover-grid" style="max-width: 900px; margin: 0 auto;">
+              <a href="https://docs.google.com/spreadsheets/d/1uyfpSzx-PHvC5CxaoBhvl0UAkOWmjinl/edit?usp=sharing&ouid=111425340034181852301&rtpof=true&sd=true"
+                target="_blank" class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">CATÁLOGO GERAL</div>
+              </a>
+              <a href="https://drive.google.com/file/d/1qmTDng6uee5IfkempmkoLgt0b9ros-vY/view" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">FASTBACK</div>
+              </a>
+              <a href="https://drive.google.com/file/d/1pUMybKyozoucig3txwNThiVpYFnTTPks/view" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">PULSE</div>
+              </a>
+              <a href="https://drive.google.com/file/d/1S1X1TYLhCkPelz2BBrgWErmk1rJDzPWv/view" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">TORO</div>
+              </a>
+              <a href="https://drive.google.com/file/d/1eiWgVvv9OdyNWqKUvuXhFUWJL6XiDXIS/view" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">STRADA</div>
+              </a>
+              <a href="https://drive.google.com/file/d/1zxKdhjsFpRCmPyFV1SSXvuxnuG5Pp-UD/view" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">ARGO</div>
+              </a>
+              <a href="https://drive.google.com/file/d/1c1qSc5EKP59wkuikTdVub5vy_uLlsOzj/view" target="_blank"
+                class="cover-btn" style="text-decoration: none;">
+                <div class="cover-doc-pill">MOBI</div>
+              </a>
+            </div>
+          </div>
+
+          <div class="doc-area col-12" id="docArea">
+
+            <!-- =========================
+           1) PROCURAÇÃO DE ACORDO
+           ========================= -->
+            <div class="doc-card hidden" id="doc-acordo">
+              <div class="head">
+                <div class="doc-title-pill doc-title-acordo">PROCURAÇÃO DE ACORDO</div>
+              </div>
+
+              <div class="section-title">Dados do Cliente</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="acordo_nomeCompleto">Nome Completo</label>
+                  <input type="text" id="acordo_nomeCompleto" placeholder="Nome completo do cliente">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_cpfCnpj">CPF/CNPJ</label>
+                  <input type="text" id="acordo_cpfCnpj" placeholder="000.000.000-00">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_endereco">Endereço</label>
+                  <input type="text" id="acordo_endereco" placeholder="Rua/av, número, complemento">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_bairro">Bairro</label>
+                  <input type="text" id="acordo_bairro" placeholder="Nome do bairro">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_cep">CEP</label>
+                  <input type="text" id="acordo_cep" placeholder="00000-000">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_cidade">Cidade</label>
+                  <input type="text" id="acordo_cidade" placeholder="Nome da cidade">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_estado">Estado</label>
+                  <input type="text" id="acordo_estado" placeholder="Sigla do Estado">
+                </div>
+              </div>
+
+              <div class="section-title">Dados do Veículo</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="acordo_modelo">Modelo do Veículo</label>
+                  <input type="text" id="acordo_modelo" placeholder="Ex: CHEVROLET/ONIX">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_placa">Placa</label>
+                  <input type="text" id="acordo_placa" placeholder="ABC1D23">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_anoModelo">Ano/Modelo</label>
+                  <input type="text" id="acordo_anoModelo" placeholder="2020/2021">
+                </div>
+                <div class="form-item">
+                  <label for="acordo_chassi">Chassi</label>
+                  <input type="text" id="acordo_chassi" placeholder="17 caracteres" maxlength="17">
+                  <span id="error-acordo_chassi" class="validation-error">O Chassi deve ter exatamente 17
+                    caracteres.</span>
+                </div>
+                <div class="form-item">
+                  <label for="acordo_renavam">Renavam</label>
+                  <input type="text" id="acordo_renavam" placeholder="11 caracteres" maxlength="11">
+                  <span id="error-acordo_renavam" class="validation-error">O Renavam deve ter exatamente 11
+                    caracteres.</span>
+                </div>
+                <div class="form-item">
+                  <label for="acordo_cor">Cor</label>
+                  <input type="text" id="acordo_cor" placeholder="Cor do veículo">
+                </div>
+              </div>
+
+              <div class="doc-actions">
+                <button class="btn btn-acordo" type="button" onclick="gerarProcuracaoAcordo()"> Gerar
+                  Procuração de
+                  Acordo</button>
+              </div>
+            </div>
+
+            <!-- =========================
+           2) PROCURAÇÃO DE RECEBIMENTO
+           ========================= -->
+            <div class="doc-card hidden" id="doc-recebimento">
+              <div class="head">
+                <div class="doc-title-pill doc-title-receb">PROCURAÇÃO DE RECEBIMENTO DO USADO</div>
+              </div>
+
+              <div class="section-title">Dados do Cliente</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="rec_nomeCompleto">Nome Completo</label>
+                  <input type="text" id="rec_nomeCompleto" placeholder="Nome completo do cliente">
+                </div>
+                <div class="form-item">
+                  <label for="rec_cpfCnpj">CPF/CNPJ</label>
+                  <input type="text" id="rec_cpfCnpj" placeholder="000.000.000-00">
+                </div>
+                <div class="form-item">
+                  <label for="rec_endereco">Endereço</label>
+                  <input type="text" id="rec_endereco" placeholder="Rua/av, número, complemento">
+                </div>
+                <div class="form-item">
+                  <label for="rec_bairro">Bairro</label>
+                  <input type="text" id="rec_bairro" placeholder="Nome do bairro">
+                </div>
+                <div class="form-item">
+                  <label for="rec_cidade">Cidade</label>
+                  <input type="text" id="rec_cidade" placeholder="Nome da cidade">
+                </div>
+                <div class="form-item">
+                  <label for="rec_estado">Estado</label>
+                  <input type="text" id="rec_estado" placeholder="Sigla do Estado">
+                </div>
+              </div>
+
+              <div class="section-title">Dados do Veículo</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="rec_modelo">Modelo do Veículo</label>
+                  <input type="text" id="rec_modelo" placeholder="Ex: CHEVROLET/ONIX 1.0 TURBO">
+                </div>
+                <div class="form-item">
+                  <label for="rec_placa">Placa</label>
+                  <input type="text" id="rec_placa" placeholder="ABC1D23">
+                </div>
+                <div class="form-item">
+                  <label for="rec_anoModelo">Ano/Modelo</label>
+                  <input type="text" id="rec_anoModelo" placeholder="2020/2021">
+                </div>
+                <div class="form-item">
+                  <label for="rec_chassi">Chassi</label>
+                  <input type="text" id="rec_chassi" placeholder="17 caracteres" maxlength="17">
+                  <span id="error-rec_chassi" class="validation-error">O Chassi deve ter exatamente 17
+                    caracteres.</span>
+                </div>
+                <div class="form-item">
+                  <label for="rec_cor">Cor</label>
+                  <input type="text" id="rec_cor" placeholder="Cor do veículo">
+                </div>
+              </div>
+
+              <div class="doc-actions">
+                <button class="btn btn-recebimento" type="button" onclick="gerarProcuracaoRecebimento()">
+                  Gerar Procuração
+                  de Recebimento do Usado</button>
+              </div>
+            </div>
+
+            <!-- =========================
+           3) TERMO DE QUITAÇÃO
+           ========================= -->
+            <div class="doc-card hidden" id="doc-quitacao">
+              <div class="head">
+                <div class="doc-title-pill doc-title-quit">TERMO DE QUITAÇÃO (ENTRADA DE TERCEIRO)</div>
+              </div>
+
+              <div class="section-title">Dados do Cliente (Anuente)</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="quit_nomeCompleto">Nome Completo</label>
+                  <input type="text" id="quit_nomeCompleto" placeholder="Nome completo do cliente">
+                </div>
+                <div class="form-item">
+                  <label for="quit_cpfCnpj">CPF/CNPJ</label>
+                  <input type="text" id="quit_cpfCnpj" placeholder="000.000.000-00">
+                </div>
+                <div class="form-item">
+                  <label for="quit_cidade">Cidade</label>
+                  <input type="text" id="quit_cidade" placeholder="Nome da cidade">
+                </div>
+              </div>
+
+              <div class="section-title">Veículo Entregue (Entrada)</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="quit_modelo">Modelo do Veículo</label>
+                  <input type="text" id="quit_modelo" placeholder="Ex: CHEVROLET/ONIX">
+                </div>
+                <div class="form-item">
+                  <label for="quit_anoModelo">Ano/Modelo</label>
+                  <input type="text" id="quit_anoModelo" placeholder="2020/2021">
+                </div>
+                <div class="form-item">
+                  <label for="quit_placa">Placa</label>
+                  <input type="text" id="quit_placa" placeholder="ABC1D23">
+                </div>
+                <div class="form-item">
+                  <label for="quit_chassi">Chassi</label>
+                  <input type="text" id="quit_chassi" placeholder="17 caracteres" maxlength="17">
+                  <span id="error-quit_chassi" class="validation-error">O Chassi deve ter exatamente 17
+                    caracteres.</span>
+                </div>
+                <div class="form-item">
+                  <label for="quit_cor">Cor</label>
+                  <input type="text" id="quit_cor" placeholder="Cor do veículo">
+                </div>
+              </div>
+
+              <div class="section-title">Dados do Cedente (Terceiro)</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="quit_cedenteNome">Nome/Razão Social do Cedente</label>
+                  <input type="text" id="quit_cedenteNome" placeholder="Nome completo / Razão social">
+                </div>
+                <div class="form-item">
+                  <label for="quit_cedenteCpfCnpj">CPF/CNPJ do Cedente</label>
+                  <input type="text" id="quit_cedenteCpfCnpj" placeholder="000.000.000-00">
+                </div>
+                <div class="form-item">
+                  <label for="quit_cedenteEndereco">Endereço do Cedente</label>
+                  <input type="text" id="quit_cedenteEndereco" placeholder="Rua/av">
+                </div>
+                <div class="form-item">
+                  <label for="quit_cedenteNumero">Número</label>
+                  <input type="text" id="quit_cedenteNumero" placeholder="nº">
+                </div>
+              </div>
+
+              <div class="section-title">Veículo Adquirido / Contrato</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="quit_veiculoAdquiridoModelo">Modelo do veículo adquirido</label>
+                  <input type="text" id="quit_veiculoAdquiridoModelo" placeholder="Ex: FIAT/FASTBACK IMPETUS">
+                </div>
+                <div class="form-item">
+                  <label for="quit_veiculoAdquiridoAnoModelo">Ano/Modelo do veículo adquirido</label>
+                  <input type="text" id="quit_veiculoAdquiridoAnoModelo" placeholder="2024/2025">
+                </div>
+                <div class="form-item">
+                  <label for="quit_veiculoAdquiridoCor">Cor do veículo adquirido</label>
+                  <input type="text" id="quit_veiculoAdquiridoCor" placeholder="Cor">
+                </div>
+                <div class="form-item">
+                  <label for="quit_veiculoAdquiridoChassi">Chassi do veículo adquirido</label>
+                  <input type="text" id="quit_veiculoAdquiridoChassi" placeholder="17 caracteres" maxlength="17">
+                  <span id="error-quit_veiculoAdquiridoChassi" class="validation-error">O Chassi deve ter exatamente 17
+                    caracteres.</span>
+                </div>
+                <div class="form-item">
+                  <label for="quit_contratoNumero">Contrato nº</label>
+                  <input type="text" id="quit_contratoNumero" placeholder="Número do contrato">
+                </div>
+                <div class="form-item">
+                  <label for="quit_valorQuitacao">Valor (R$) da quitação</label>
+                  <input type="text" id="quit_valorQuitacao" inputmode="decimal" placeholder="Ex: 30000 ou 30.000,00">
+                </div>
+              </div>
+
+              <p class="helper"><strong></strong></p>
+
+              <div class="doc-actions">
+                <button class="btn btn-quitacao" type="button" onclick="gerarTermoQuitacaoTerceiro()"> Gerar
+                  Termo de
+                  Quitação (Terceiro)</button>
+              </div>
+            </div>
+
+            <!-- =========================
+           4) INSTRUMENTO RESPONSABILIDADE
+           ========================= -->
+            <div class="doc-card hidden" id="doc-instrumento">
+              <div class="head">
+                <div class="doc-title-pill doc-title-inst">INSTRUMENTO DE RESPONSABILIDADE</div>
+              </div>
+
+              <div class="section-title">Dados do Cliente</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="inst_nomeCompleto">Nome Completo</label>
+                  <input type="text" id="inst_nomeCompleto" placeholder="Nome completo do cliente">
+                </div>
+                <div class="form-item">
+                  <label for="inst_cpfCnpj">CPF/CNPJ</label>
+                  <input type="text" id="inst_cpfCnpj" placeholder="000.000.000-00">
+                </div>
+                <div class="form-item">
+                  <label for="inst_cidade">Cidade</label>
+                  <input type="text" id="inst_cidade" placeholder="Nome da cidade">
+                </div>
+                <div class="form-item">
+                  <label for="inst_placa">Placa (opcional p/ nome do arquivo)</label>
+                  <input type="text" id="inst_placa" placeholder="ABC1D23 (opcional)">
+                </div>
+              </div>
+
+              <div class="section-title">Dados do Veículo</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="inst_modelo">Modelo do Veículo</label>
+                  <input type="text" id="inst_modelo" placeholder="Ex: FIAT/FASTBACK">
+                </div>
+                <div class="form-item">
+                  <label for="inst_chassi">Chassi</label>
+                  <input type="text" id="inst_chassi" placeholder="17 caracteres" maxlength="17">
+                  <span id="error-inst_chassi" class="validation-error">O Chassi deve ter exatamente 17
+                    caracteres.</span>
+                </div>
+              </div>
+
+              <div class="section-title">Dados de Entrega</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="inst_dataEntrega">Data da entrega</label>
+                  <input type="text" id="inst_dataEntrega" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10">
+                </div>
+                <div class="form-item">
+                  <label for="inst_horaEntrega">Hora da entrega</label>
+                  <input type="text" id="inst_horaEntrega" inputmode="numeric" placeholder="hh:mm" maxlength="5">
+                </div>
+              </div>
+
+              <p class="helper">Dica: ao digitar apenas números, o sistema coloca as barras/“:”
+                automaticamente (ex.: 10122025
+                → 10/12/2025).</p>
+
+              <div class="doc-actions">
+                <button class="btn btn-responsabilidade" type="button" onclick="gerarInstrumentoResponsabilidade()">
+                  Gerar
+                  Instrumento de Responsabilidade</button>
+              </div>
+            </div>
+
+            <!-- =========================
+           5) DECLARAÇÃO DE RESIDÊNCIA (placa removida)
+           ========================= -->
+            <div class="doc-card hidden" id="doc-residencia">
+              <div class="head">
+                <div class="doc-title-pill doc-title-res">DECLARAÇÃO DE RESIDÊNCIA</div>
+              </div>
+
+              <div class="section-title">Dados do Declarante</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="res_nomeCompleto">Nome Completo</label>
+                  <input type="text" id="res_nomeCompleto" placeholder="Nome completo do cliente">
+                </div>
+                <div class="form-item">
+                  <label for="res_cpfCnpj">CPF</label>
+                  <input type="text" id="res_cpfCnpj" placeholder="000.000.000-00">
+                </div>
+                <div class="form-item">
+                  <label for="res_endereco">Endereço</label>
+                  <input type="text" id="res_endereco" placeholder="Rua/av, número, complemento">
+                </div>
+                <div class="form-item">
+                  <label for="res_bairro">Bairro</label>
+                  <input type="text" id="res_bairro" placeholder="Nome do bairro">
+                </div>
+                <div class="form-item">
+                  <label for="res_cidade">Cidade</label>
+                  <input type="text" id="res_cidade" placeholder="Nome da cidade">
+                </div>
+                <div class="form-item">
+                  <label for="res_estado">Estado</label>
+                  <input type="text" id="res_estado" placeholder="Sigla do Estado">
+                </div>
+              </div>
+
+              <div class="doc-actions">
+                <button class="btn btn-residencia" type="button" onclick="gerarDeclaracaoResidencia()"> Gerar
+                  Declaração de
+                  Residência</button>
+              </div>
+            </div>
+
+            <!-- =========================
+           6) DECLARAÇÃO DE DEPÓSITO PARA TERCEIROS
+           ========================= -->
+            <div class="doc-card hidden" id="doc-deposito">
+              <div class="head">
+                <div class="doc-title-pill doc-title-dep">DECLARAÇÃO DE DEPÓSITO PARA TERCEIROS</div>
+              </div>
+
+              <div class="section-title">Dados do Declarante</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="dep_nomeCompleto">Nome Completo</label>
+                  <input type="text" id="dep_nomeCompleto" placeholder="Nome completo do declarante">
+                </div>
+                <div class="form-item">
+                  <label for="dep_cpfCnpj">CPF/CNPJ</label>
+                  <input type="text" id="dep_cpfCnpj" placeholder="000.000.000-00">
+                </div>
+
+              </div>
+
+              <div class="section-title">Dados do Depósito</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="dep_valor">Valor do depósito</label>
+                  <input type="text" id="dep_valor" inputmode="decimal" placeholder="Ex: 300 ou 300,00">
+                </div>
+                <div class="form-item">
+                  <label for="dep_valorExtenso">Valor por extenso (opcional)</label>
+                  <input type="text" id="dep_valorExtenso" placeholder="Ex: trezentos reais">
+                </div>
+                <div class="form-item">
+                  <label for="dep_dataDeposito">Data do depósito</label>
+                  <input type="text" id="dep_dataDeposito" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10">
+                </div>
+              </div>
+
+              <div class="section-title">Dados Bancários (San Marino)</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="dep_banco">Banco</label>
+                  <input type="text" id="dep_banco" placeholder="Ex: ITAU" value="ITAU">
+                </div>
+                <div class="form-item">
+                  <label for="dep_agencia">Agência</label>
+                  <input type="text" id="dep_agencia" placeholder="Ex: 0280" value="0280">
+                </div>
+                <div class="form-item">
+                  <label for="dep_conta">Conta Corrente</label>
+                  <input type="text" id="dep_conta" placeholder="Ex: 00110-8" value="00110-8">
+                </div>
+              </div>
+
+              <div class="section-title">Dados do Veículo e do Faturamento</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="dep_chassiPlaca">Chassi/Placa</label>
+                  <input type="text" id="dep_chassiPlaca" placeholder="Informe o chassi e/ou placa">
+                </div>
+                <div class="form-item">
+                  <label for="dep_faturadoNome">Faturado em nome de</label>
+                  <input type="text" id="dep_faturadoNome" placeholder="Nome / Razão social">
+                </div>
+                <div class="form-item">
+                  <label for="dep_faturadoCpfCnpj">CPF/CNPJ do faturado</label>
+                  <input type="text" id="dep_faturadoCpfCnpj" placeholder="000.000.000-00">
+                </div>
+              </div>
+
+              <div class="section-title">Local e Data (linha superior)</div>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label for="dep_cidade">Cidade</label>
+                  <input type="text" id="dep_cidade" placeholder="Ex: Porto Alegre" value="">
+                </div>
+                <div class="form-item">
+                  <label for="dep_dia">Dia</label>
+                  <input type="text" id="dep_dia" inputmode="numeric" placeholder="Ex: 13" maxlength="2">
+                </div>
+                <div class="form-item">
+                  <label for="dep_mesExtenso">Mês (por extenso)</label>
+                  <input type="text" id="dep_mesExtenso" placeholder="Ex: abril">
+                </div>
+                <div class="form-item">
+                  <label for="dep_ano">Ano</label>
+                  <input type="text" id="dep_ano" inputmode="numeric" placeholder="2026" maxlength="9">
+                </div>
+              </div>
+
+              <p class="helper"> <strong></strong></p>
+
+              <div class="doc-actions">
+                <button class="btn btn-deposito" type="button" onclick="gerarDeclaracaoDepositoTerceiros()">
+                  Gerar
+                  Declaração de Depósito para Terceiros</button>
+              </div>
+            </div>
+
+            <!-- =========================
+           7) ORÇAMENTO DETRAN
+           ========================= -->
+            <div class="doc-card hidden" id="doc-orcamento">
+              <div class="head no-print">
+                <div class="doc-title-pill"
+                  style="color: #f59e0b; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
+                  ORÇAMENTO DETRAN</div>
+              </div>
+
+              <div class="orc-card" id="printable-orcamento">
+                <header class="orc-header">
+                  <h1>ORÇAMENTO PARA TRANSFERÊNCIA OU EMPLACAMENTO DE VEÍCULOS</h1>
+                </header>
+
+                <div class="orc-grid">
+                  <div class="orc-field">
+                    <label class="orc-label">Despachante:</label>
+                    <input type="text" class="orc-input" id="orc_despachante" value="RAMIRO ILHA" style="color: #000;">
+                  </div>
+                  <div class="orc-field">
+                    <label class="orc-label">Loja:</label>
+                    <input type="text" class="orc-input" id="orc_loja" value="SAN MARINO VEÍCULOS" style="color: #000;">
+                  </div>
+                  <div class="orc-field">
+                    <label class="orc-label">Data do Recibo:</label>
+                    <input type="text" class="orc-input" id="orc_dataRecibo" style="color: #000;">
+                  </div>
+                  <div class="orc-field">
+                    <label class="orc-label">Placas/Chassis:</label>
+                    <input type="text" class="orc-input" id="orc_placa" placeholder="Ex: JDO1234">
+                  </div>
+                  <div class="orc-field">
+                    <label class="orc-label">Ano/Modelo/Cor:</label>
+                    <input type="text" class="orc-input" id="orc_anoModeloCor" placeholder="Ex: 2025/2026">
+                  </div>
+                  <div class="orc-field">
+                    <label class="orc-label">Veículo:</label>
+                    <input type="text" class="orc-input" id="orc_veiculo" placeholder="Ex: TITANO RANCH">
+                  </div>
+                  <div class="orc-field">
+                    <label class="orc-label">Proprietário:</label>
+                    <input type="text" class="orc-input" id="orc_proprietario">
+                  </div>
+                  <div class="orc-field">
+                    <label class="orc-label">CPF/CNPJ:</label>
+                    <input type="text" class="orc-input" id="orc_cpfCnpj">
+                  </div>
+                </div>
+
+                <div style="margin: 0.5rem 0;">
+                  <label class="orc-label">Observações:</label>
+                  <div id="orc_obs" class="orc-field obs-placeholder" contenteditable="true"
+                    style="min-height: 1.8rem; font-size: 0.75rem; font-weight: 900; background: #fbfbfb;"
+                    placeholder="digite aqui as observações"></div>
+                </div>
+
+                <table class="orc-table">
+                  <thead>
+                    <tr>
+                      <th>SERVIÇOS</th>
+                      <th style="width: 70px; text-align: center;">SOMA?</th>
+                      <th style="width: 140px; text-align: right;">VALORES (R$)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="orc-body">
+                    <tr>
+                      <td>Honorários devidos ao despachante</td>
+                      <td style="text-align: center;"></td>
+                      <td style="text-align: right;" class="orc-price">150,00</td>
+                    </tr>
+                    <tr>
+                      <td>Serviços Prestados pela Concessionária:</td>
+                      <td style="text-align: center;"></td>
+                      <td style="text-align: right;" class="orc-price">850,00</td>
+                    </tr>
+                    <tr>
+                      <td>IPVA/RS - Parcela Anual 2026</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price" contenteditable="true"
+                        oninput="updateOrcamentoTotal()">
+                        0,00</td>
+                    </tr>
+                    <tr>
+                      <td>Taxa de EMPLACAMENTO ou TRANSFERÊNCIA de propriedade</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price" contenteditable="true"
+                        oninput="updateOrcamentoTotal()">
+                        1.330,00</td>
+                    </tr>
+                    <tr>
+                      <td>Taxa Vistoria – DETRAN/RS</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price">114,11</td>
+                    </tr>
+                    <tr>
+                      <td>Taxa de Expedição – CRLV</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price">360,00</td>
+                    </tr>
+                    <tr>
+                      <td>Escolha de Placa (Opcional ) – DETRAN/RS</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price">519,33</td>
+                    </tr>
+                    <tr>
+                      <td>Confecção Placa Metálica Oficial – Agente credenciado</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price">370,00</td>
+                    </tr>
+                    <tr>
+                      <td>Comunicação de Venda</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price">50,98</td>
+                    </tr>
+                    <tr>
+                      <td>Seguro Placa Verde</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price">20,00</td>
+                    </tr>
+                    <tr>
+                      <td>Cartório/Cópias</td>
+                      <td style="text-align: center;"><input type="checkbox" class="orc-check"
+                          onchange="updateOrcamentoTotal()" checked></td>
+                      <td style="text-align: right;" class="orc-price" contenteditable="true"
+                        oninput="updateOrcamentoTotal()">
+                        0,00</td>
+                    </tr>
+                    <tr style="background: #fdf2f2;">
+                      <td style="font-weight: 900; color: #dc2626;">DESCONTO</td>
+                      <td style="text-align: center;"></td>
+                      <td style="text-align: right; color: #dc2626;" class="orc-price" contenteditable="true"
+                        id="orc_desconto" oninput="updateOrcamentoTotal()">0,00</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="orc-total-box">
+                  <div style="font-weight: 900; text-transform: uppercase;">Valor Consolidado:</div>
+                  <div class="orc-total-amt" id="orc-total">R$ 0,00</div>
+                </div>
+
+                <div class="orc-legal">
+                  <div style="color: red; text-align: center; font-weight: 900; margin-bottom: 0.5rem;">É
+                    DIREITO DO
+                    CONSUMIDOR A LIVRE ESCOLHA DE DESPACHANTE.</div>
+                  <p>PODE O CLIENTE OPTAR PELA CONTRATAÇÃO DE OUTRO PROFISSIONAL QUE NÃO O INDICADO PELA
+                    CONCESSIONÁRIA.</p>
+                  <p>CASO O CLIENTE OPTE PELA CONTRATAÇÃO DE OUTRO DESPACHANTE (DIVERSO DO INDICADO), A
+                    CONCESSIONÁRIA FICA
+                    DESOBRIGADA DAS SEGUINTES RESPONSABILIDADES, CABENDO-AS AO CONSUMIDOR:</p>
+                  <p>a) AO DESLOCAMENTO, RETIRADA, LOCOMOÇÃO, CONDUTOR E SEGURO DO VEÍCULO;</p>
+                  <p>b) PELO FORNECIMENTO DE PLACAS VERDES PARA A CIRCULAÇÃO DO VEÍCULO ADQUIRIDO ANTES DE
+                    EMPLACADO,
+                    PROVIDÊNCIAS QUE FICARÃO A CARGO DO CLIENTE, INCLUSIVE COM A CONTRATAÇÃO DE GUINCHO/AUTO
+                    PLATAFORMAS, CASO
+                    NECESSÁRIA, PARA A RETIRADA DO VEÍCULO DA CONCESSIONÁRIA.</p>
+                  <p>A CONCESSIONÁRIA NÃO SE RESPONSABILIZA POR EVENTUAL ATRASO NO REGISTRO E EMPLACAMENTO DO
+                    VEÍCULO, BEM
+                    COMO POR EVENTUAIS PREJUÍZOS E ENTRAVES QUE VENHAM A OCORRER.</p>
+                </div>
+
+                <div class="orc-sigs">
+                  <div>
+                    <div class="orc-sig-line">Responsável Técnico</div>
+                  </div>
+                  <div>
+                    <div class="orc-sig-line">Assinatura do Cliente</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="doc-actions no-print">
+                <button class="btn btn-acordo" type="button" onclick="gerarOrcamentoDetran()"
+                  style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #111827;"> Gerar PDF do
+                  Orçamento</button>
+              </div>
+            </div>
+
+            <!-- =========================
+           8) TEXTO CONTRATUAL
+           ========================= -->
+            <div class="doc-card hidden" id="doc-contrato">
+              <div class="head">
+                <div class="doc-title-pill doc-title-contrato">TEXTO CONTRATUAL</div>
+              </div>
+
+              <div class="section-title"
+                style="border-top: none; margin-top: 0; padding-top: 0; text-align: center; margin-bottom: 15px;">
+                Escolha a Modalidade de Venda, copie o texto e cole no contrato</div>
+
+              <div class="tabs-contrato">
+                <button class="tab-contrato active" id="tab-tradicional" type="button"
+                  onclick="selecionarModalidade('tradicional')">
+                  Garantia em Dobro
+                </button>
+                <button class="tab-contrato" id="tab-outlet" type="button" onclick="selecionarModalidade('outlet')">
+                  Outlet
+                </button>
+              </div>
+
+              <textarea class="texto-contratual" id="texto-contratual" readonly></textarea>
+
+              <div class="doc-actions">
+                <button class="btn btn-contrato" type="button" onclick="copiarTextoContratual()"> Copiar
+                  Texto</button>
+              </div>
+            </div>
+
+
+            <!-- =========================
+           9) CALCULADORA DE JUROS (Cartão)
+           ========================= -->
+            <div class="doc-card hidden" id="doc-calculadora" style="padding: 30px;">
+
+              <div class="calc-header">
+                <h2></h2>
+                <p>
+                  Digite o valor que o cliente quer passar no cartão e aperte o botão do banco desejado. Os valores
+                  aparecem somente após a seleção do banco <strong>REDE</strong> ou <strong>BANRICOMPRAS</strong>.
+                </p>
+              </div>
+
+              <!-- Nova Linha de Controles -->
+              <div class="calc-new-controls">
+                <label class="calc-new-label"></label>
+                <div class="calc-new-input-wrap">
+                  <span class="calc-new-prefix">R$</span>
+                  <input id="calc_baseValue" class="calc-new-input" type="text" inputmode="decimal"
+                    placeholder="Ex.: 10.000,00" />
+                </div>
+                <button class="calc-btn-limpar" type="button" onclick="calc_limpar()">Limpar</button>
+              </div>
+
+              <!-- Novos Botões de Banco -->
+              <div class="calc-new-bank-row" aria-label="Seleção de operadora">
+                <button class="calc-new-bank-btn rede" id="calc_btnRede" type="button" title="Selecionar REDE">
+                  <span class="calc-new-dot"></span> REDE
+                </button>
+                <button class="calc-new-bank-btn banri" id="calc_btnBanri" type="button"
+                  title="Selecionar BANRICOMPRAS">
+                  <span class="calc-new-dot"></span> BANRICOMPRAS
+                </button>
+              </div>
+
+              <div id="calc_emptyState" class="calc-new-empty-state">
+                Selecione <strong>REDE</strong> ou <strong>BANRICOMPRAS</strong> para exibir as taxas e o
+                cálculo.
+              </div>
+
+              <div id="calc_content" class="hidden">
+                <div class="calc-table-wrap" aria-label="Tabela (rolagem horizontal no mobile)">
+                  <table class="calc-sheet" aria-label="Tabela de taxas e cálculo">
+                    <thead>
+                      <tr>
+                        <th style="width:34%;">Modalidade/Parcelas</th>
+                        <th class="center" style="width:14%;">Taxa</th>
+                        <th class="center" style="width:14%;">Fator</th>
+                        <th class="center" style="width:16%;">Valor a cobrar</th>
+                        <th class="center calc-highlight calc-sep" style="width:12%;">Quantidade de parcelas
+                        </th>
+                        <th class="center calc-highlight" style="width:14%;">Valor da parcela</th>
+                      </tr>
+                    </thead>
+                    <tbody id="calc_tbody"></tbody>
+                  </table>
+                </div>
+
+                <div class="calc-rotate-note">
+                  No celular em <strong>modo retrato</strong>, deslize a tabela para o lado (rolagem
+                  horizontal). Se preferir,
+                  gire a tela para <strong>horizontal</strong> para ver tudo de uma vez.
+                </div>
+              </div>
+
+            </div>
+
+
+            <!-- =========================
+           10) LINKS ÚTEIS
+           ========================= -->
+            <div class="doc-card hidden" id="doc-links">
+              <div style="height: 10px;"></div>
+
+              <div class="link-section">
+                <div class="cover-grid" style="gap: 20px;">
+                  <!-- Coluna 1: Links de Consulta -->
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="https://veiculos.fipe.org.br/" target="_blank" class="cover-btn"
+                      style="text-decoration: none;">
+                      <div class="cover-doc-pill">TABELA FIPE</div>
+                    </a>
+                    <a href="https://www.sefaz.rs.gov.br/apps/ipva/principal/tabs/meus-veiculos" target="_blank"
+                      class="cover-btn" style="text-decoration: none;">
+                      <div class="cover-doc-pill">VALOR DE IPVA</div>
+                    </a>
+                    <a href="https://pcsdetran.rs.gov.br/login?redirectUrl=%2Fconsulta-veiculo" target="_blank"
+                      class="cover-btn" style="text-decoration: none;">
+                      <div class="cover-doc-pill">SITUAÇÃO DO DETRAN</div>
+                    </a>
+                    <a href="https://albertomateus10.github.io/pdfsdomes/Termo_de_Responsabilidade_do_Test_Drive.xlsx"
+                      target="_blank" class="cover-btn" style="text-decoration: none;">
+                      <div class="cover-doc-pill">Termo de Test Drive (Download)</div>
+                    </a>
+                  </div>
+
+                  <!-- Coluna 2: Links WhatsApp -->
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="https://wa.me/555191896086" target="_blank" class="cover-btn"
+                      style="text-decoration: none;">
+                      <div class="cover-doc-pill"><i class="fa-brands fa-whatsapp"></i>&nbsp; WHATS AGENDAMENTO OFICINA
+                      </div>
+                    </a>
+                    <a href="https://wa.me/555199415144" target="_blank" class="cover-btn"
+                      style="text-decoration: none;">
+                      <div class="cover-doc-pill"><i class="fa-brands fa-whatsapp"></i>&nbsp; WHATS SETOR DE PEÇAS</div>
+                    </a>
+                    <a href="https://wa.me/555199601435" target="_blank" class="cover-btn"
+                      style="text-decoration: none;">
+                      <div class="cover-doc-pill"><i class="fa-brands fa-whatsapp"></i>&nbsp; WHATS VENDAS DE SEGUROS
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+      </main>
+
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
