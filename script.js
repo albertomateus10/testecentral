@@ -158,77 +158,7 @@ window.loginGoogle = async function () {
   }
 };
 
-// Flag para evitar múltiplos envios simultâneos
-let isProcessingEmail = false;
-
-window.verificarEmail = async function () {
-  if (isProcessingEmail) return;
-
-  const emailInput = document.getElementById('login-email');
-  const btnVerificar = document.getElementById('btn-verificar-email');
-  const email = emailInput.value.trim().toLowerCase();
-
-  if (!email) {
-    showLoginError("Por favor, digite seu e-mail.");
-    return;
-  }
-
-  if (!supabaseClient) {
-    showLoginError("O sistema ainda está carregando.");
-    return;
-  }
-
-  try {
-    isProcessingEmail = true;
-    if (btnVerificar) {
-      btnVerificar.disabled = true;
-      btnVerificar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ENVIANDO...';
-    }
-
-    if (loginError) loginError.classList.add('hidden');
-    console.log("Iniciando fluxo de login por e-mail para:", email);
-
-    await loginEmail();
-
-  } catch (err) {
-    console.error("Erro verificarEmail:", err);
-    showLoginError("Erro ao processar login por e-mail.");
-  } finally {
-    isProcessingEmail = false;
-    if (btnVerificar) {
-      btnVerificar.disabled = false;
-      btnVerificar.innerHTML = '<i class="fas fa-sign-in-alt"></i> ENTRAR';
-    }
-  }
-};
-
-window.loginEmail = async function () {
-  const emailInput = document.getElementById('login-email');
-  const email = emailInput.value.trim().toLowerCase();
-
-  if (!email) return;
-
-  try {
-    const { error } = await supabaseClient.auth.signInWithOtp({
-      email: email,
-      options: {
-        emailRedirectTo: window.location.origin + window.location.pathname
-      }
-    });
-
-    if (error) {
-      if (error.status === 429 || error.message.includes('rate limit')) {
-        throw new Error("Muitas tentativas! Por favor, aguarde 60 segundos antes de tentar novamente.");
-      }
-      throw error;
-    }
-
-    showStatusArea("Link Enviado!", "Verifique sua caixa de entrada. Enviamos um link de acesso para " + email);
-  } catch (error) {
-    console.error("Erro Magic Link:", error);
-    showLoginError(error.message);
-  }
-};
+// Funções de E-mail removidas conforme solicitado (Login apenas via Google agora)
 
 window.showApp = function () {
   console.log("🏙️ Forçando entrada no sistema (showApp)...");
@@ -299,12 +229,6 @@ function showStatusArea(title, msg, showEnterButton = false) {
     loginError.classList.add('hidden');
     loginError.style.setProperty('display', 'none', 'important');
   }
-
-  // Esconde a área de login por e-mail se estiver visível
-  const emailArea = document.getElementById('email-login-area');
-  const divider = document.querySelector('.login-divider');
-  if (emailArea) emailArea.classList.add('hidden');
-  if (divider) divider.classList.add('hidden');
 }
 
 function showLoginError(msg) {

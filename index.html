@@ -22,22 +22,9 @@
       </div>
       <h2>Central de Apoio</h2>
 
-      <div id="email-login-area">
-        <div class="input-group">
-          <input type="email" id="login-email" placeholder="e-mail" required
-            oninput="this.value = this.value.toLowerCase()">
-        </div>
-        <button id="btn-verificar-email" class="btn-primary" onclick="verificarEmail()">
-          <i class="fas fa-sign-in-alt"></i> ENTRAR
-        </button>
-        <button id="btn-login-email" class="btn-primary hidden" onclick="loginEmail()">
-          <i class="fas fa-paper-plane"></i> Receber Link de Acesso
-        </button>
-      </div>
-
-      <div class="login-divider">
-        <span>ou</span>
-      </div>
+      <p style="text-align: center; margin-bottom: 20px; color: var(--muted); font-size: 14px;">
+        Acesse o sistema com sua conta Google.
+      </p>
 
       <button id="btn-login-google" class="btn-google" onclick="loginGoogle()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
