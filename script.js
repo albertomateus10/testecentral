@@ -52,6 +52,7 @@ async function validarAcesso(user) {
 
   const email = user.email;
   const nome = user.user_metadata.full_name || email;
+  console.log("Validando acesso para:", email);
 
   try {
     const { data, error } = await supabaseClient
@@ -60,28 +61,48 @@ async function validarAcesso(user) {
       .eq('email', email)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erro na consulta do banco:", error);
+      throw error;
+    }
+
+    console.log("Resultado da consulta de acesso:", data);
 
     if (!data) {
-      await supabaseClient.from('usuarios_acesso').insert([
+      console.log("Usuário não encontrado, inserindo novo registro pendente...");
+      const { error: insError } = await supabaseClient.from('usuarios_acesso').insert([
         { email: email, nome: nome, status: 'pendente' }
       ]);
+      if (insError) console.error("Erro ao inserir novo acesso:", insError);
+
       showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
     } else {
+      console.log("Status atual do usuário:", data.status);
       if (data.status === 'aprovado') {
+        console.log("Acesso aprovado! Mostrando o app.");
         showApp();
       } else if (data.status === 'pendente') {
+        console.log("Acesso pendente. Mostrando área de status.");
         showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
       } else {
+        console.warn("Acesso negado (status diferente de aprovado/pendente):", data.status);
         showLoginError("Acesso negado para este usuário.");
         await supabaseClient.auth.signOut();
       }
     }
   } catch (err) {
-    console.error("Erro na validação:", err);
-    showLoginError("Falha na conexão com o banco de dados.");
+    console.error("Erro completo na validação:", err);
+    showLoginError("Falha na conexão com o banco de dados. Verifique o console.");
   }
 }
+
+// Global Logout
+window.logout = async function () {
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut();
+    window.location.reload();
+  }
+};
 
 // Tornando a função GLOBAL para o onclick do HTML
 window.loginGoogle = async function () {
@@ -140,11 +161,21 @@ function showLoginError(msg) {
 
 function setupAuthListeners() {
   supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    console.log("Mudança de estado auth:", event);
-    if (event === 'SIGNED_IN' && session) {
-      await validarAcesso(session.user);
-    } else if (event === 'SIGNED_OUT') {
-      showLogin();
+    console.log("Evento Auth Detectado:", event);
+
+    if (session) {
+      // Se acabou de logar ou já estava logado, validar acesso
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        // Limpar o fragmento da URL (#access_token...) sem recarregar a página
+        if (window.location.hash) {
+          window.history.replaceState(null, null, window.location.pathname);
+        }
+        await validarAcesso(session.user);
+      }
+    } else {
+      if (event === 'SIGNED_OUT') {
+        showLogin();
+      }
     }
   });
 }
