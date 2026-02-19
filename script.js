@@ -1,5 +1,5 @@
 
-console.log("--- SCRIPT.JS CARREGADO (Versão: FINAL-v1) ---");
+console.log("--- SCRIPT.JS CARREGADO (Versão: FINAL-v2) ---");
 
 /* =========================
    CONFIGURAÇÃO SUPABASE
@@ -30,9 +30,9 @@ function initSupabase() {
   if (window.supabase) {
     supabaseClient = window.supabase.createClient(SB_URL, SB_KEY, {
       auth: {
-        storageKey: 'central-apoio-session', // Nova chave para ignorar travas antigas
-        persistSession: true,
+        storage: window.sessionStorage, // USA SESSION STORAGE PARA PULAR O LOCKMANAGER (TRAVA DO CHROME)
         autoRefreshToken: true,
+        persistSession: true,
         detectSessionInUrl: true
       }
     });
