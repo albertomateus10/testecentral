@@ -1,4 +1,6 @@
 
+console.log("--- SCRIPT.JS CARREGADO (Versão: 22:06) ---");
+
 /* =========================
    CONFIGURAÇÃO SUPABASE
    ========================= */
@@ -15,23 +17,22 @@ function updateElements() {
   loginError = document.getElementById('login-error');
   loginStatusArea = document.getElementById('login-status-area');
   btnLoginGoogle = document.getElementById('btn-login-google');
-  console.log("Elementos da UI mapeados:", {
-    loginScreen: !!loginScreen,
-    btnLoginGoogle: !!btnLoginGoogle
+  console.log("Mapeamento de elementos:", {
+    btn: !!btnLoginGoogle,
+    loginScreen: !!loginScreen
   });
 }
 
 // Inicialização robusta - aguarda o SDK carregar
 function initSupabase() {
-  console.log("Iniciando initSupabase...");
+  console.log("Inicializando Supabase...");
   updateElements();
   if (window.supabase) {
-    console.log("SDK do Supabase detectado. Criando cliente...");
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     setupAuthListeners();
     checkUser();
   } else {
-    console.warn("SDK do Supabase não encontrado. Retentando em 500ms...");
+    console.warn("SDK não encontrado, tentando novamente...");
     setTimeout(initSupabase, 500);
   }
 }
@@ -52,41 +53,42 @@ async function validarAcesso(user) {
   const email = user.email;
   const nome = user.user_metadata.full_name || email;
 
-  // 1. Verificar se o usuário existe na tabela 'usuarios_acesso'
-  const { data, error } = await supabase
-    .from('usuarios_acesso')
-    .select('*')
-    .eq('email', email)
-    .maybeSingle();
+  try {
+    const { data, error } = await supabase
+      .from('usuarios_acesso')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
 
-  if (error) {
-    console.error("Erro ao validar acesso:", error);
-    showLoginError("Erro na conexão com o banco de dados.");
-    return;
-  }
+    if (error) throw error;
 
-  if (!data) {
-    // 2. Se não existir, registrar como pendente
-    await supabase.from('usuarios_acesso').insert([
-      { email: email, nome: nome, status: 'pendente' }
-    ]);
-    showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
-  } else {
-    // 3. Se existir, verificar o status
-    if (data.status === 'aprovado') {
-      showApp();
-    } else if (data.status === 'pendente') {
-      showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
+    if (!data) {
+      await supabase.from('usuarios_acesso').insert([
+        { email: email, nome: nome, status: 'pendente' }
+      ]);
+      showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
     } else {
-      showLoginError("Acesso negado para este usuário.");
-      await supabase.auth.signOut();
+      if (data.status === 'aprovado') {
+        showApp();
+      } else if (data.status === 'pendente') {
+        showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
+      } else {
+        showLoginError("Acesso negado para este usuário.");
+        await supabase.auth.signOut();
+      }
     }
+  } catch (err) {
+    console.error("Erro na validação:", err);
+    showLoginError("Falha na conexão com o banco de dados.");
   }
 }
 
-async function loginGoogle() {
+// Tornando a função GLOBAL para o onclick do HTML
+window.loginGoogle = async function () {
+  console.log("Função loginGoogle disparada!");
   if (!supabase) {
-    alert("O sistema ainda está carregando, tente novamente em instantes.");
+    console.error("Supabase não inicializado!");
+    alert("O sistema ainda está carregando. Por favor, aguarde 2 segundos.");
     return;
   }
 
@@ -101,9 +103,10 @@ async function loginGoogle() {
   });
 
   if (error) {
-    showLoginError('Erro ao tentar fazer login: ' + error.message);
+    console.error("Erro OAuth:", error);
+    showLoginError('Erro no login: ' + error.message);
   }
-}
+};
 
 function showApp() {
   if (loginScreen) loginScreen.classList.add('hidden');
@@ -133,22 +136,11 @@ function showLoginError(msg) {
     loginError.classList.remove('hidden');
   }
   if (loginStatusArea) loginStatusArea.classList.add('hidden');
-  if (btnLoginGoogle) btnLoginGoogle.classList.remove('hidden');
 }
 
 function setupAuthListeners() {
-  console.log("Configurando listeners de autenticação...");
-  if (btnLoginGoogle) {
-    console.log("Anexando evento de clique ao botão de Google.");
-    btnLoginGoogle.addEventListener('click', () => {
-      console.log("Botão Google clicado!");
-      loginGoogle();
-    });
-  } else {
-    console.error("ERRO: Botão 'btn-login-google' não encontrado no DOM!");
-  }
-
   supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log("Mudança de estado auth:", event);
     if (event === 'SIGNED_IN' && session) {
       await validarAcesso(session.user);
     } else if (event === 'SIGNED_OUT') {
@@ -158,11 +150,7 @@ function setupAuthListeners() {
 }
 
 // Iniciar processo
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSupabase);
-} else {
-  initSupabase();
-}
+initSupabase();
 
 function replicarDadosCliente() {
   const campos = {
