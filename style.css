@@ -2784,14 +2784,14 @@ html[data-theme="dark"] .card {
 }
 
 .login-logo {
-  width: 200px !important;
+  width: 300px !important;
   height: auto !important;
   background: transparent !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   box-shadow: none !important;
-  margin-bottom: 5px;
+  margin-bottom: 20px;
   flex-shrink: 0;
 }
 
