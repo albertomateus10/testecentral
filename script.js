@@ -1,5 +1,5 @@
 
-console.log("--- SCRIPT.JS CARREGADO (Versão: 23:45) ---");
+console.log("--- SCRIPT.JS CARREGADO (Versão: 23:55) ---");
 
 /* =========================
    CONFIGURAÇÃO SUPABASE
@@ -28,7 +28,14 @@ function initSupabase() {
   console.log("Inicializando Supabase...");
   updateElements();
   if (window.supabase) {
-    supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+    supabaseClient = window.supabase.createClient(SB_URL, SB_KEY, {
+      auth: {
+        storageKey: 'central-apoio-session', // Nova chave para ignorar travas antigas
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
     setupAuthListeners();
     checkUser();
   } else {
