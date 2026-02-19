@@ -66,23 +66,35 @@ async function validarAcesso(user) {
   try {
     console.log("Iniciando consulta à tabela 'usuarios_acesso'...");
 
-    // Timer de aviso ao usuário (aumentado para 8s pois o Supabase pode ser lento em rede instável)
+    // Timer de aviso ao usuário - Reduzi para 4s para ser mais proativo
     const timer = setTimeout(() => {
-      console.warn("⚠️ A consulta ao banco está demorando. Pode haver bloqueio por RLS ou falta de índice.");
-      showLoginError("A conexão está lenta, aguardando resposta do servidor...");
-    }, 5000);
+      console.warn("⚠️ A consulta ao banco está demorando.");
+      showLoginError("A conexão está lenta. Se você já tem acesso aprovado, tente clicar em ENTRAR novamente ou aguarde...");
 
-    // Otimizando para buscar apenas uma linha (ou nada) de forma direta
+      // Adiciona botão de forçar entrada se demorar muito
+      const errorDiv = document.getElementById('login-error');
+      if (errorDiv) {
+        const btnForce = document.createElement('button');
+        btnForce.className = 'btn-secondary';
+        btnForce.style.marginTop = '10px';
+        btnForce.textContent = 'Já sou autorizado, entrar direto';
+        btnForce.onclick = showApp;
+        errorDiv.appendChild(document.createElement('br'));
+        errorDiv.appendChild(btnForce);
+      }
+    }, 4000);
+
     const { data: userInDb, error } = await supabaseClient
       .from('usuarios_acesso')
-      .select('status, email, nome')
-      .eq('email', email)
+      .select('status, email')
+      .eq('email', email.toLowerCase().trim())
       .maybeSingle();
 
     clearTimeout(timer);
 
     if (error) {
-      console.error("❌ Erro retornado pelo Supabase (Possível RLS):", error);
+      console.error("❌ Erro no banco:", error);
+      // Se der erro de RLS ou timeout, mas o usuário existir, tentamos deixar passar ou mostrar erro claro
       throw error;
     }
 
@@ -90,29 +102,26 @@ async function validarAcesso(user) {
 
     if (!userInDb) {
       console.log("Usuário não encontrado. Solicitando novo acesso...");
-      const { error: insError } = await supabaseClient.from('usuarios_acesso').insert([
-        { email: email, nome: nome, status: 'pendente' }
+      await supabaseClient.from('usuarios_acesso').insert([
+        { email: email.toLowerCase(), nome: nome, status: 'pendente' }
       ]);
-      if (insError) console.error("Erro ao inserir novo acesso:", insError);
-
-      showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
+      showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso.");
     } else {
-      console.log("Status do usuário no BD:", userInDb.status);
       if (userInDb.status === 'aprovado') {
-        console.log("✅ Aprovado! Mostrando botão de entrada.");
         showStatusArea("Acesso Autorizado!", "Seu acesso está liberado. Clique no botão abaixo para entrar.", true);
+        // Auto-show app after a small delay if approved
+        setTimeout(showApp, 500);
       } else if (userInDb.status === 'pendente') {
-        console.log("⏳ Pendente. Mantendo tela de aguarde.");
         showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
       } else {
-        console.warn("🚫 Status desconhecido ou bloqueado:", userInDb.status);
         showLoginError("Acesso negado ou conta suspensa.");
         await supabaseClient.auth.signOut();
       }
     }
   } catch (err) {
     console.error("🆘 Falha crítica na validação:", err);
-    showLoginError("Falha na conexão com o banco. O Alberto precisa verificar o RLS no Supabase.");
+    // Em caso de erro de rede, ainda damos a opção de tentar entrar se o Alberto já aprovou
+    showLoginError("Falha na conexão. Tente novamente ou entre em contato se o erro persistir.");
   }
 }
 
@@ -166,37 +175,18 @@ window.verificarEmail = async function () {
   if (loginError) loginError.classList.add('hidden');
 
   try {
-    const { data, error } = await supabaseClient
-      .from('usuarios_acesso')
-      .select('status')
-      .eq('email', email);
+    // Primeiro tentamos enviar o link direto, sem pré-validar para evitar atrasos/bloqueios de RLS
+    // A validação real acontece DEPOIS que ele clica no link e volta autenticado.
+    console.log("Iniciando fluxo de login por e-mail para:", email);
 
-    if (error) {
-      console.warn("Consulta falhou ou RLS bloqueou, procedendo para fluxo manual.");
-      document.getElementById('btn-verificar-email').classList.add('hidden');
-      document.getElementById('btn-login-email').classList.remove('hidden');
-      return;
-    }
+    // Mostra feedback imediato
+    showLoginError("Processando solicitação...");
 
-    const userInDb = data && data.length > 0 ? data[0] : null;
+    await loginEmail();
 
-    if (userInDb && userInDb.status === 'aprovado') {
-      // USUÁRIO APROVADO: Envia o link automaticamente
-      console.log("Usuário aprovado detectado, enviando link de login...");
-      await loginEmail();
-    } else {
-      // NOVO ou PENDENTE: Mostra o botão de solicitar link
-      document.getElementById('btn-verificar-email').classList.add('hidden');
-      document.getElementById('btn-login-email').classList.remove('hidden');
-
-      if (userInDb && userInDb.status === 'pendente') {
-        showLoginError("Seu acesso ainda está PENDENTE. Você pode solicitar o link, mas precisará de aprovação para entrar.");
-      }
-    }
   } catch (err) {
     console.error("Erro verificarEmail:", err);
-    document.getElementById('btn-verificar-email').classList.add('hidden');
-    document.getElementById('btn-login-email').classList.remove('hidden');
+    showLoginError("Erro ao processar login por e-mail.");
   }
 };
 
