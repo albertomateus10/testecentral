@@ -1,5 +1,5 @@
 
-console.log("--- SCRIPT.JS CARREGADO (Versão: 22:15) ---");
+console.log("--- SCRIPT.JS CARREGADO (Versão: 23:30) ---");
 
 /* =========================
    CONFIGURAÇÃO SUPABASE
