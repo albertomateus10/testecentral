@@ -1,13 +1,13 @@
 
-console.log("--- SCRIPT.JS CARREGADO (Versão: 22:06) ---");
+console.log("--- SCRIPT.JS CARREGADO (Versão: 22:15) ---");
 
 /* =========================
    CONFIGURAÇÃO SUPABASE
    ========================= */
-const SUPABASE_URL = 'https://mbaglidxyqoatoudaywv.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_rDV65MqkhE_2zRszFM98LA_Lp7d3M6-';
+const SB_URL = 'https://mbaglidxyqoatoudaywv.supabase.co';
+const SB_KEY = 'sb_publishable_rDV65MqkhE_2zRszFM98LA_Lp7d3M6-';
 
-let supabase = null;
+let supabaseClient = null;
 
 let loginScreen, appContainer, loginError, loginStatusArea, btnLoginGoogle;
 
@@ -28,7 +28,7 @@ function initSupabase() {
   console.log("Inicializando Supabase...");
   updateElements();
   if (window.supabase) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
     setupAuthListeners();
     checkUser();
   } else {
@@ -38,8 +38,8 @@ function initSupabase() {
 }
 
 async function checkUser() {
-  if (!supabase) return;
-  const { data: { session } } = await supabase.auth.getSession();
+  if (!supabaseClient) return;
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     await validarAcesso(session.user);
   } else {
@@ -48,13 +48,13 @@ async function checkUser() {
 }
 
 async function validarAcesso(user) {
-  if (!supabase) return;
+  if (!supabaseClient) return;
 
   const email = user.email;
   const nome = user.user_metadata.full_name || email;
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('usuarios_acesso')
       .select('*')
       .eq('email', email)
@@ -63,7 +63,7 @@ async function validarAcesso(user) {
     if (error) throw error;
 
     if (!data) {
-      await supabase.from('usuarios_acesso').insert([
+      await supabaseClient.from('usuarios_acesso').insert([
         { email: email, nome: nome, status: 'pendente' }
       ]);
       showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
@@ -74,7 +74,7 @@ async function validarAcesso(user) {
         showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
       } else {
         showLoginError("Acesso negado para este usuário.");
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
       }
     }
   } catch (err) {
@@ -86,7 +86,7 @@ async function validarAcesso(user) {
 // Tornando a função GLOBAL para o onclick do HTML
 window.loginGoogle = async function () {
   console.log("Função loginGoogle disparada!");
-  if (!supabase) {
+  if (!supabaseClient) {
     console.error("Supabase não inicializado!");
     alert("O sistema ainda está carregando. Por favor, aguarde 2 segundos.");
     return;
@@ -95,7 +95,7 @@ window.loginGoogle = async function () {
   if (loginError) loginError.classList.add('hidden');
   if (loginStatusArea) loginStatusArea.classList.add('hidden');
 
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: window.location.origin + window.location.pathname
@@ -139,7 +139,7 @@ function showLoginError(msg) {
 }
 
 function setupAuthListeners() {
-  supabase.auth.onAuthStateChange(async (event, session) => {
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
     console.log("Mudança de estado auth:", event);
     if (event === 'SIGNED_IN' && session) {
       await validarAcesso(session.user);
