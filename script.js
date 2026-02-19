@@ -99,8 +99,9 @@ async function validarAcesso(user) {
     } else {
       console.log("Status do usuário no BD:", userInDb.status);
       if (userInDb.status === 'aprovado') {
-        console.log("Aprovado! Ingressando no sistema.");
-        showApp();
+        console.log("Aprovado! Mostrando botão de entrada.");
+        // Em vez de entrar direto, mostra o botão conforme pedido do usuário
+        showStatusArea("Acesso Autorizado!", "Seu acesso está liberado. Clique no botão abaixo para entrar.", true);
       } else if (userInDb.status === 'pendente') {
         console.log("Pendente. Mantendo tela de aguarde.");
         showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
@@ -149,6 +150,40 @@ window.loginGoogle = async function () {
   }
 };
 
+window.loginEmail = async function () {
+  const emailInput = document.getElementById('login-email');
+  const email = emailInput.value.trim().toLowerCase();
+
+  if (!email) {
+    showLoginError("Por favor, digite seu e-mail.");
+    return;
+  }
+
+  if (!supabaseClient) {
+    showLoginError("O sistema ainda está carregando.");
+    return;
+  }
+
+  if (loginError) loginError.classList.add('hidden');
+  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+
+  try {
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+
+    showStatusArea("Link Enviado!", "Verifique sua caixa de entrada. Enviamos um link de acesso para " + email);
+  } catch (error) {
+    console.error("Erro Magic Link:", error);
+    showLoginError('Erro: ' + error.message);
+  }
+};
+
 function showApp() {
   console.log("🏙️ Forçando entrada no sistema (showApp)...");
   updateElements();
@@ -187,10 +222,26 @@ function showLogin() {
   }
 }
 
-function showStatusArea(title, msg) {
+function showStatusArea(title, msg, showEnterButton = false) {
   if (loginStatusArea) {
     loginStatusArea.querySelector('h3').textContent = title;
     loginStatusArea.querySelector('p').textContent = msg;
+
+    const actionsDiv = document.getElementById('status-actions');
+    if (actionsDiv) {
+      // Limpa e mantém apenas o botão de logout por padrão
+      actionsDiv.innerHTML = `<button onclick="logout()" class="btn-secondary">Sair / Trocar Conta</button>`;
+
+      if (showEnterButton) {
+        const btnEnter = document.createElement('button');
+        btnEnter.className = 'btn-primary';
+        btnEnter.style.marginTop = '10px';
+        btnEnter.innerHTML = '<i class="fas fa-sign-in-alt"></i> ENTRAR NO SISTEMA';
+        btnEnter.onclick = showApp;
+        actionsDiv.prepend(btnEnter);
+      }
+    }
+
     loginStatusArea.classList.remove('hidden');
     loginStatusArea.style.setProperty('display', 'block', 'important');
   }
@@ -202,6 +253,12 @@ function showStatusArea(title, msg) {
     loginError.classList.add('hidden');
     loginError.style.setProperty('display', 'none', 'important');
   }
+
+  // Esconde a área de login por e-mail se estiver visível
+  const emailArea = document.getElementById('email-login-area');
+  const divider = document.querySelector('.login-divider');
+  if (emailArea) emailArea.classList.add('hidden');
+  if (divider) divider.classList.add('hidden');
 }
 
 function showLoginError(msg) {

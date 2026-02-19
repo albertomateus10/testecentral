@@ -1,0 +1,155 @@
+
+console.log("--- SCRIPT.JS CARREGADO (Versão: 22:15) ---");
+
+/* =========================
+   CONFIGURAÇÃO SUPABASE
+   ========================= */
+const SB_URL = 'https://mbaglidxyqoatoudaywv.supabase.co';
+const SB_KEY = 'sb_publishable_rDV65MqkhE_2zRszFM98LA_Lp7d3M6-';
+
+let supabaseClient = null;
+
+let loginScreen, appContainer, loginError, loginStatusArea, btnLoginGoogle;
+
+function updateElements() {
+  loginScreen = document.getElementById('login-screen');
+  appContainer = document.querySelector('.app');
+  loginError = document.getElementById('login-error');
+  loginStatusArea = document.getElementById('login-status-area');
+  btnLoginGoogle = document.getElementById('btn-login-google');
+  console.log("Mapeamento de elementos:", { 
+    btn: !!btnLoginGoogle, 
+    loginScreen: !!loginScreen 
+  });
+}
+
+// Inicialização robusta - aguarda o SDK carregar
+function initSupabase() {
+  console.log("Inicializando Supabase...");
+  updateElements();
+  if (window.supabase) {
+    // Usando a variável renomeada para evitar conflito com window.supabase
+    supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+    setupAuthListeners();
+    checkUser();
+  } else {
+    console.warn("SDK não encontrado, tentando novamente...");
+    setTimeout(initSupabase, 500);
+  }
+}
+
+async function checkUser() {
+  if (!supabaseClient) return;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    await validarAcesso(session.user);
+  } else {
+    showLogin();
+  }
+}
+
+async function validarAcesso(user) {
+  if (!supabaseClient) return;
+  
+  const email = user.email;
+  const nome = user.user_metadata.full_name || email;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('usuarios_acesso')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      await supabaseClient.from('usuarios_acesso').insert([
+        { email: email, nome: nome, status: 'pendente' }
+      ]);
+      showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
+    } else {
+      if (data.status === 'aprovado') {
+        showApp();
+      } else if (data.status === 'pendente') {
+        showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
+      } else {
+        showLoginError("Acesso negado para este usuário.");
+        await supabaseClient.auth.signOut();
+      }
+    }
+  } catch (err) {
+    console.error("Erro na validação:", err);
+    showLoginError("Falha na conexão com o banco de dados.");
+  }
+}
+
+// Tornando a função GLOBAL para o onclick do HTML
+window.loginGoogle = async function() {
+  console.log("Função loginGoogle disparada!");
+  if (!supabaseClient) {
+    console.error("Supabase não inicializado!");
+    alert("O sistema ainda está carregando. Por favor, aguarde 2 segundos.");
+    return;
+  }
+  
+  if (loginError) loginError.classList.add('hidden');
+  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + window.location.pathname
+    }
+  });
+
+  if (error) {
+    console.error("Erro OAuth:", error);
+    showLoginError('Erro no login: ' + error.message);
+  }
+};
+
+function showApp() {
+  if (loginScreen) loginScreen.classList.add('hidden');
+  if (appContainer) appContainer.classList.remove('hidden');
+}
+
+function showLogin() {
+  if (loginScreen) loginScreen.classList.remove('hidden');
+  if (appContainer) appContainer.classList.add('hidden');
+  if (btnLoginGoogle) btnLoginGoogle.classList.remove('hidden');
+  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+}
+
+function showStatusArea(title, msg) {
+  if (loginStatusArea) {
+    loginStatusArea.querySelector('h3').textContent = title;
+    loginStatusArea.querySelector('p').textContent = msg;
+    loginStatusArea.classList.remove('hidden');
+  }
+  if (btnLoginGoogle) btnLoginGoogle.classList.add('hidden');
+  if (loginError) loginError.classList.add('hidden');
+}
+
+function showLoginError(msg) {
+  if (loginError) {
+    loginError.textContent = msg;
+    loginError.classList.remove('hidden');
+  }
+  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+}
+
+function setupAuthListeners() {
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    console.log("Mudança de estado auth:", event);
+    if (event === 'SIGNED_IN' && session) {
+      await validarAcesso(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      showLogin();
+    }
+  });
+}
+
+// Iniciar processo
+initSupabase();
+

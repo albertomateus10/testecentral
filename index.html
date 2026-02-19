@@ -18,15 +18,23 @@
   <div id="login-screen">
     <div class="login-card">
       <div class="login-logo">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 2.5c4.2 0 7.6 3.4 7.6 7.6 0 5.4-7.6 11.8-7.6 11.8S4.4 15.5 4.4 10.1C4.4 5.9 7.8 2.5 12 2.5Z"
-            stroke="white" stroke-width="1.8" />
-          <path d="M9.2 10.2l1.8 1.8 3.9-4.2" stroke="white" stroke-width="1.8" stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
+        <img src="logonova.png" alt="Logo San Marino" style="width: 100%; height: auto; object-fit: contain;">
       </div>
       <h2>Central de Apoio</h2>
-      <p>Acesse com sua conta Google da San Marino</p>
+
+      <div id="email-login-area">
+        <div class="input-group">
+          <input type="email" id="login-email" placeholder="E-mail" required>
+        </div>
+        <button id="btn-login-email" class="btn-primary" onclick="loginEmail()">
+          <i class="fas fa-paper-plane"></i> Receber Link de Acesso
+        </button>
+      </div>
+
+      <div class="login-divider">
+        <span>ou</span>
+      </div>
+
       <button id="btn-login-google" class="btn-google" onclick="loginGoogle()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
         <span>Entrar com Google</span>
@@ -35,7 +43,10 @@
         <div class="status-icon"><i class="fas fa-clock"></i></div>
         <h3>Acesso Pendente</h3>
         <p>Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase para você continuar.</p>
-        <button onclick="logout()" class="btn-secondary">Sair / Trocar Conta</button>
+        <div id="status-actions"
+          style="display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center;">
+          <button onclick="logout()" class="btn-secondary">Sair / Trocar Conta</button>
+        </div>
       </div>
       <div id="login-error" class="login-error hidden"></div>
     </div>
