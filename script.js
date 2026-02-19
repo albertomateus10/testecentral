@@ -1,5 +1,5 @@
 
-console.log("--- SCRIPT.JS CARREGADO (Versão: 00:00) ---");
+console.log("--- SCRIPT.JS CARREGADO (Versão: FINAL-v1) ---");
 
 /* =========================
    CONFIGURAÇÃO SUPABASE
@@ -150,12 +150,15 @@ window.loginGoogle = async function () {
 };
 
 function showApp() {
-  console.log("🏙️ Executando showApp()...");
+  console.log("🏙️ Forçando entrada no sistema (showApp)...");
+  updateElements();
   if (loginScreen) {
+    loginScreen.style.setProperty('display', 'none', 'important');
     loginScreen.classList.add('hidden');
-    console.log("Login screen ocultada.");
+    console.log("Login screen escondida.");
   }
   if (appContainer) {
+    appContainer.style.setProperty('display', 'block', 'important');
     appContainer.classList.remove('hidden');
     console.log("App container visível.");
   } else {
@@ -164,10 +167,24 @@ function showApp() {
 }
 
 function showLogin() {
-  if (loginScreen) loginScreen.classList.remove('hidden');
-  if (appContainer) appContainer.classList.add('hidden');
-  if (btnLoginGoogle) btnLoginGoogle.classList.remove('hidden');
-  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+  console.log("🔑 Mostrando tela de login (showLogin)...");
+  updateElements();
+  if (loginScreen) {
+    loginScreen.style.setProperty('display', 'flex', 'important');
+    loginScreen.classList.remove('hidden');
+  }
+  if (appContainer) {
+    appContainer.style.setProperty('display', 'none', 'important');
+    appContainer.classList.add('hidden');
+  }
+  if (btnLoginGoogle) {
+    btnLoginGoogle.style.setProperty('display', 'flex', 'important');
+    btnLoginGoogle.classList.remove('hidden');
+  }
+  if (loginStatusArea) {
+    loginStatusArea.style.setProperty('display', 'none', 'important');
+    loginStatusArea.classList.add('hidden');
+  }
 }
 
 function showStatusArea(title, msg) {
@@ -175,17 +192,28 @@ function showStatusArea(title, msg) {
     loginStatusArea.querySelector('h3').textContent = title;
     loginStatusArea.querySelector('p').textContent = msg;
     loginStatusArea.classList.remove('hidden');
+    loginStatusArea.style.setProperty('display', 'block', 'important');
   }
-  if (btnLoginGoogle) btnLoginGoogle.classList.add('hidden');
-  if (loginError) loginError.classList.add('hidden');
+  if (btnLoginGoogle) {
+    btnLoginGoogle.classList.add('hidden');
+    btnLoginGoogle.style.setProperty('display', 'none', 'important');
+  }
+  if (loginError) {
+    loginError.classList.add('hidden');
+    loginError.style.setProperty('display', 'none', 'important');
+  }
 }
 
 function showLoginError(msg) {
   if (loginError) {
     loginError.textContent = msg;
     loginError.classList.remove('hidden');
+    loginError.style.setProperty('display', 'block', 'important');
   }
-  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+  if (loginStatusArea) {
+    loginStatusArea.classList.add('hidden');
+    loginStatusArea.style.setProperty('display', 'none', 'important');
+  }
 }
 
 function setupAuthListeners() {
