@@ -7,22 +7,34 @@ const SUPABASE_ANON_KEY = 'sb_publishable_rDV65MqkhE_2zRszFM98LA_Lp7d3M6-';
 
 let supabase = null;
 
+let loginScreen, appContainer, loginError, loginStatusArea, btnLoginGoogle;
+
+function updateElements() {
+  loginScreen = document.getElementById('login-screen');
+  appContainer = document.querySelector('.app');
+  loginError = document.getElementById('login-error');
+  loginStatusArea = document.getElementById('login-status-area');
+  btnLoginGoogle = document.getElementById('btn-login-google');
+  console.log("Elementos da UI mapeados:", {
+    loginScreen: !!loginScreen,
+    btnLoginGoogle: !!btnLoginGoogle
+  });
+}
+
 // Inicialização robusta - aguarda o SDK carregar
 function initSupabase() {
+  console.log("Iniciando initSupabase...");
+  updateElements();
   if (window.supabase) {
+    console.log("SDK do Supabase detectado. Criando cliente...");
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     setupAuthListeners();
     checkUser();
   } else {
+    console.warn("SDK do Supabase não encontrado. Retentando em 500ms...");
     setTimeout(initSupabase, 500);
   }
 }
-
-const loginScreen = document.getElementById('login-screen');
-const appContainer = document.querySelector('.app');
-const loginError = document.getElementById('login-error');
-const loginStatusArea = document.getElementById('login-status-area');
-const btnLoginGoogle = document.getElementById('btn-login-google');
 
 async function checkUser() {
   if (!supabase) return;
@@ -125,8 +137,15 @@ function showLoginError(msg) {
 }
 
 function setupAuthListeners() {
+  console.log("Configurando listeners de autenticação...");
   if (btnLoginGoogle) {
-    btnLoginGoogle.addEventListener('click', loginGoogle);
+    console.log("Anexando evento de clique ao botão de Google.");
+    btnLoginGoogle.addEventListener('click', () => {
+      console.log("Botão Google clicado!");
+      loginGoogle();
+    });
+  } else {
+    console.error("ERRO: Botão 'btn-login-google' não encontrado no DOM!");
   }
 
   supabase.auth.onAuthStateChange(async (event, session) => {
