@@ -66,29 +66,30 @@ async function validarAcesso(user) {
   try {
     console.log("Iniciando consulta à tabela 'usuarios_acesso'...");
 
-    // Adicionando um log de "timeout" manual para sabermos se travou
+    // Timer de aviso ao usuário (aumentado para 8s pois o Supabase pode ser lento em rede instável)
     const timer = setTimeout(() => {
-      console.warn("⚠️ A consulta ao banco está demorando mais de 5 segundos. Pode haver um bloqueio no navegador ou no RLS.");
+      console.warn("⚠️ A consulta ao banco está demorando. Pode haver bloqueio por RLS ou falta de índice.");
+      showLoginError("A conexão está lenta, aguardando resposta do servidor...");
     }, 5000);
 
-    const { data, error } = await supabaseClient
+    // Otimizando para buscar apenas uma linha (ou nada) de forma direta
+    const { data: userInDb, error } = await supabaseClient
       .from('usuarios_acesso')
-      .select('*')
-      .eq('email', email);
+      .select('status, email, nome')
+      .eq('email', email)
+      .maybeSingle();
 
     clearTimeout(timer);
 
     if (error) {
-      console.error("❌ Erro retornado pelo Supabase:", error);
+      console.error("❌ Erro retornado pelo Supabase (Possível RLS):", error);
       throw error;
     }
 
-    console.log("✅ Resposta do banco recebida:", data);
-
-    const userInDb = data && data.length > 0 ? data[0] : null;
+    console.log("✅ Resposta do banco recebida:", userInDb);
 
     if (!userInDb) {
-      console.log("Usuário não encontrado na tabela. Solicitando novo acesso...");
+      console.log("Usuário não encontrado. Solicitando novo acesso...");
       const { error: insError } = await supabaseClient.from('usuarios_acesso').insert([
         { email: email, nome: nome, status: 'pendente' }
       ]);
@@ -104,14 +105,14 @@ async function validarAcesso(user) {
         console.log("⏳ Pendente. Mantendo tela de aguarde.");
         showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
       } else {
-        console.warn("🚫 Status desconhecido:", userInDb.status);
+        console.warn("🚫 Status desconhecido ou bloqueado:", userInDb.status);
         showLoginError("Acesso negado ou conta suspensa.");
         await supabaseClient.auth.signOut();
       }
     }
   } catch (err) {
     console.error("🆘 Falha crítica na validação:", err);
-    showLoginError("Falha na conexão com o banco. Veja o console.");
+    showLoginError("Falha na conexão com o banco. O Alberto precisa verificar o RLS no Supabase.");
   }
 }
 
