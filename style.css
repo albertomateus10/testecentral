@@ -795,8 +795,122 @@
       grid-column: span 6;
     }
 
-    .col-4 {
-      grid-column: span 4;
+    /* =========================
+       LOGIN SCREEN
+       ========================= */
+    #login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--glow), var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    #login-screen.hidden {
+      display: none;
+    }
+
+    .login-card {
+      background: var(--topbar);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--stroke);
+      padding: 40px;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      animation: fadeInLogin 0.5s ease-out;
+    }
+
+    @keyframes fadeInLogin {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      display: grid;
+      place-items: center;
+      box-shadow: 0 15px 35px rgba(31, 58, 95, 0.3);
+      margin-bottom: 10px;
+    }
+
+    .login-logo svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .login-card h2 {
+      margin: 0;
+      font-size: 24px;
+      color: var(--brand);
+      font-weight: 800;
+    }
+
+    .login-card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: white;
+      color: #333;
+      border: 1px solid #ddd;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-google:hover {
+      background: #f8f9fa;
+      border-color: #ccc;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .btn-google img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .login-error {
+      font-size: 13px;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      width: 100%;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .hidden {
+      display: none !important;
     }
 
     .col-3 {

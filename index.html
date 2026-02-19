@@ -10,10 +10,32 @@
   <link rel="stylesheet" href="style.css">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-  <div class="app">
+  <!-- TELA DE LOGIN -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5c4.2 0 7.6 3.4 7.6 7.6 0 5.4-7.6 11.8-7.6 11.8S4.4 15.5 4.4 10.1C4.4 5.9 7.8 2.5 12 2.5Z"
+            stroke="white" stroke-width="1.8" />
+          <path d="M9.2 10.2l1.8 1.8 3.9-4.2" stroke="white" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h2>Central de Apoio</h2>
+      <p>Acesse com sua conta Google da San Marino</p>
+      <button id="btn-login-google" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
+        <span>Entrar com Google</span>
+      </button>
+      <div id="login-error" class="login-error hidden"></div>
+    </div>
+  </div>
+
+  <div class="app hidden">
     <div id="toast-container"></div>
     <div id="sidebar-overlay"></div>
     <div class="shell" id="shell">
