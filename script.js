@@ -2,22 +2,31 @@
 /* =========================
    CONFIGURAÇÃO SUPABASE
    ========================= */
-// Substitua pelas suas credenciais do Supabase
 const SUPABASE_URL = 'https://mbaglidxyqoatoudaywv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_rDV65MqkhE_2zRszFM98LA_Lp7d3M6-';
 
-const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let supabase = null;
+
+// Inicialização robusta - aguarda o SDK carregar
+function initSupabase() {
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    setupAuthListeners();
+    checkUser();
+  } else {
+    setTimeout(initSupabase, 500);
+  }
+}
 
 const loginScreen = document.getElementById('login-screen');
 const appContainer = document.querySelector('.app');
 const loginError = document.getElementById('login-error');
+const loginStatusArea = document.getElementById('login-status-area');
 const btnLoginGoogle = document.getElementById('btn-login-google');
 
 async function checkUser() {
   if (!supabase) return;
-
-  const { data: { session }, error } = await supabase.auth.getSession();
-
+  const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     await validarAcesso(session.user);
   } else {
@@ -26,47 +35,56 @@ async function checkUser() {
 }
 
 async function validarAcesso(user) {
-  const email = user.email;
-  const domain = email.split('@')[1];
-
-  // Permitir acesso para alberto ou qualquer e-mail do domínio sanmarinofiat.com.br
-  if (email === 'alberto@sanmarinofiat.com.br' || domain === 'sanmarinofiat.com.br') {
-    registrarAcesso(user, 'PERMITIDO');
-    showApp();
-  } else {
-    registrarAcesso(user, 'NEGADO');
-    await supabase.auth.signOut();
-    showLoginError('Acesso negado. Utilize seu e-mail corporativo @sanmarinofiat.com.br');
-  }
-}
-
-async function registrarAcesso(user, status) {
   if (!supabase) return;
 
-  // Tenta registrar o acesso na tabela 'acessos'
-  // Nota: Alberto pode configurar um Webhook no Supabase nesta tabela para receber e-mails
-  try {
-    await supabase.from('acessos').insert([
-      {
-        email: user.email,
-        nome: user.user_metadata.full_name,
-        data_hora: new Date().toISOString(),
-        status: status
-      }
+  const email = user.email;
+  const nome = user.user_metadata.full_name || email;
+
+  // 1. Verificar se o usuário existe na tabela 'usuarios_acesso'
+  const { data, error } = await supabase
+    .from('usuarios_acesso')
+    .select('*')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Erro ao validar acesso:", error);
+    showLoginError("Erro na conexão com o banco de dados.");
+    return;
+  }
+
+  if (!data) {
+    // 2. Se não existir, registrar como pendente
+    await supabase.from('usuarios_acesso').insert([
+      { email: email, nome: nome, status: 'pendente' }
     ]);
-  } catch (e) {
-    console.error('Erro ao registrar acesso:', e);
+    showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
+  } else {
+    // 3. Se existir, verificar o status
+    if (data.status === 'aprovado') {
+      showApp();
+    } else if (data.status === 'pendente') {
+      showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
+    } else {
+      showLoginError("Acesso negado para este usuário.");
+      await supabase.auth.signOut();
+    }
   }
 }
 
 async function loginGoogle() {
-  if (!supabase) return;
+  if (!supabase) {
+    alert("O sistema ainda está carregando, tente novamente em instantes.");
+    return;
+  }
+
   if (loginError) loginError.classList.add('hidden');
+  if (loginStatusArea) loginStatusArea.classList.add('hidden');
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.href
+      redirectTo: window.location.origin + window.location.pathname
     }
   });
 
@@ -83,6 +101,18 @@ function showApp() {
 function showLogin() {
   if (loginScreen) loginScreen.classList.remove('hidden');
   if (appContainer) appContainer.classList.add('hidden');
+  if (btnLoginGoogle) btnLoginGoogle.classList.remove('hidden');
+  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+}
+
+function showStatusArea(title, msg) {
+  if (loginStatusArea) {
+    loginStatusArea.querySelector('h3').textContent = title;
+    loginStatusArea.querySelector('p').textContent = msg;
+    loginStatusArea.classList.remove('hidden');
+  }
+  if (btnLoginGoogle) btnLoginGoogle.classList.add('hidden');
+  if (loginError) loginError.classList.add('hidden');
 }
 
 function showLoginError(msg) {
@@ -90,24 +120,29 @@ function showLoginError(msg) {
     loginError.textContent = msg;
     loginError.classList.remove('hidden');
   }
+  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+  if (btnLoginGoogle) btnLoginGoogle.classList.remove('hidden');
 }
 
-if (btnLoginGoogle) {
-  btnLoginGoogle.addEventListener('click', loginGoogle);
-}
+function setupAuthListeners() {
+  if (btnLoginGoogle) {
+    btnLoginGoogle.addEventListener('click', loginGoogle);
+  }
 
-// Listener para mudanças de autenticação
-if (supabase) {
   supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN') {
+    if (event === 'SIGNED_IN' && session) {
       await validarAcesso(session.user);
     } else if (event === 'SIGNED_OUT') {
       showLogin();
     }
   });
+}
 
-  // Inicializar verificação
-  checkUser();
+// Iniciar processo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSupabase);
+} else {
+  initSupabase();
 }
 
 function replicarDadosCliente() {
