@@ -164,7 +164,6 @@ window.verificarEmail = async function () {
 
   if (loginError) loginError.classList.add('hidden');
 
-  // Tentar consultar anonimamente para ver o status
   try {
     const { data, error } = await supabaseClient
       .from('usuarios_acesso')
@@ -172,8 +171,7 @@ window.verificarEmail = async function () {
       .eq('email', email);
 
     if (error) {
-      console.warn("Consulta anônima falhou (RLS?), procedendo para Magic Link normal.");
-      // Se falhar (provavelmente por RLS), apenas mostra o botão de Magic Link
+      console.warn("Consulta falhou ou RLS bloqueou, procedendo para fluxo manual.");
       document.getElementById('btn-verificar-email').classList.add('hidden');
       document.getElementById('btn-login-email').classList.remove('hidden');
       return;
@@ -182,23 +180,20 @@ window.verificarEmail = async function () {
     const userInDb = data && data.length > 0 ? data[0] : null;
 
     if (userInDb && userInDb.status === 'aprovado') {
-      showStatusArea("Acesso Autorizado!", "Seu e-mail está liberado em nossa base. Agora você pode entrar clicando abaixo ou usando o Google.", true);
-      // Se ele já estiver autorizado, mostramos o Google botão também se estiver escondido
-      if (btnLoginGoogle) {
-        btnLoginGoogle.classList.remove('hidden');
-        btnLoginGoogle.style.setProperty('display', 'flex', 'important');
-      }
+      // USUÁRIO APROVADO: Envia o link automaticamente
+      console.log("Usuário aprovado detectado, enviando link de login...");
+      await loginEmail();
     } else {
-      // Se for novo ou pendente, mostra o botão de Link de Acesso
+      // NOVO ou PENDENTE: Mostra o botão de solicitar link
       document.getElementById('btn-verificar-email').classList.add('hidden');
       document.getElementById('btn-login-email').classList.remove('hidden');
+
       if (userInDb && userInDb.status === 'pendente') {
-        showLoginError("Seu acesso ainda está PENDENTE. Você pode solicitar o link para tentar logar, mas precisará de aprovação.");
+        showLoginError("Seu acesso ainda está PENDENTE. Você pode solicitar o link, mas precisará de aprovação para entrar.");
       }
     }
   } catch (err) {
     console.error("Erro verificarEmail:", err);
-    // Fallback: mostra o botão de login normal
     document.getElementById('btn-verificar-email').classList.add('hidden');
     document.getElementById('btn-login-email').classList.remove('hidden');
   }
