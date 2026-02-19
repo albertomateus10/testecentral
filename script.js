@@ -158,8 +158,14 @@ window.loginGoogle = async function () {
   }
 };
 
+// Flag para evitar múltiplos envios simultâneos
+let isProcessingEmail = false;
+
 window.verificarEmail = async function () {
+  if (isProcessingEmail) return;
+
   const emailInput = document.getElementById('login-email');
+  const btnVerificar = document.getElementById('btn-verificar-email');
   const email = emailInput.value.trim().toLowerCase();
 
   if (!email) {
@@ -172,21 +178,27 @@ window.verificarEmail = async function () {
     return;
   }
 
-  if (loginError) loginError.classList.add('hidden');
-
   try {
-    // Primeiro tentamos enviar o link direto, sem pré-validar para evitar atrasos/bloqueios de RLS
-    // A validação real acontece DEPOIS que ele clica no link e volta autenticado.
-    console.log("Iniciando fluxo de login por e-mail para:", email);
+    isProcessingEmail = true;
+    if (btnVerificar) {
+      btnVerificar.disabled = true;
+      btnVerificar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ENVIANDO...';
+    }
 
-    // Mostra feedback imediato
-    showLoginError("Processando solicitação...");
+    if (loginError) loginError.classList.add('hidden');
+    console.log("Iniciando fluxo de login por e-mail para:", email);
 
     await loginEmail();
 
   } catch (err) {
     console.error("Erro verificarEmail:", err);
     showLoginError("Erro ao processar login por e-mail.");
+  } finally {
+    isProcessingEmail = false;
+    if (btnVerificar) {
+      btnVerificar.disabled = false;
+      btnVerificar.innerHTML = '<i class="fas fa-sign-in-alt"></i> ENTRAR';
+    }
   }
 };
 
@@ -194,12 +206,7 @@ window.loginEmail = async function () {
   const emailInput = document.getElementById('login-email');
   const email = emailInput.value.trim().toLowerCase();
 
-  if (!email) {
-    showLoginError("Por favor, digite seu e-mail.");
-    return;
-  }
-
-  if (loginError) loginError.classList.add('hidden');
+  if (!email) return;
 
   try {
     const { error } = await supabaseClient.auth.signInWithOtp({
@@ -209,12 +216,17 @@ window.loginEmail = async function () {
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      if (error.status === 429 || error.message.includes('rate limit')) {
+        throw new Error("Muitas tentativas! Por favor, aguarde 60 segundos antes de tentar novamente.");
+      }
+      throw error;
+    }
 
     showStatusArea("Link Enviado!", "Verifique sua caixa de entrada. Enviamos um link de acesso para " + email);
   } catch (error) {
     console.error("Erro Magic Link:", error);
-    showLoginError('Erro: ' + error.message);
+    showLoginError(error.message);
   }
 };
 
