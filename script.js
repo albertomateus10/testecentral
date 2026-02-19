@@ -1,5 +1,5 @@
 
-console.log("--- SCRIPT.JS CARREGADO (Versão: 23:30) ---");
+console.log("--- SCRIPT.JS CARREGADO (Versão: 23:45) ---");
 
 /* =========================
    CONFIGURAÇÃO SUPABASE
@@ -48,28 +48,41 @@ async function checkUser() {
 }
 
 async function validarAcesso(user) {
-  if (!supabaseClient) return;
+  if (!supabaseClient) {
+    console.error("Erro: supabaseClient não existe na função validarAcesso");
+    return;
+  }
 
   const email = user.email;
   const nome = user.user_metadata.full_name || email;
   console.log("Validando acesso para:", email);
 
   try {
+    console.log("Iniciando consulta à tabela 'usuarios_acesso'...");
+
+    // Adicionando um log de "timeout" manual para sabermos se travou
+    const timer = setTimeout(() => {
+      console.warn("⚠️ A consulta ao banco está demorando mais de 5 segundos. Pode haver um bloqueio no navegador ou no RLS.");
+    }, 5000);
+
     const { data, error } = await supabaseClient
       .from('usuarios_acesso')
       .select('*')
-      .eq('email', email)
-      .maybeSingle();
+      .eq('email', email);
+
+    clearTimeout(timer);
 
     if (error) {
-      console.error("Erro na consulta do banco:", error);
+      console.error("❌ Erro retornado pelo Supabase:", error);
       throw error;
     }
 
-    console.log("Resultado da consulta de acesso:", data);
+    console.log("✅ Resposta do banco recebida:", data);
 
-    if (!data) {
-      console.log("Usuário não encontrado, inserindo novo registro pendente...");
+    const userInDb = data && data.length > 0 ? data[0] : null;
+
+    if (!userInDb) {
+      console.log("Usuário não encontrado na tabela. Solicitando novo acesso...");
       const { error: insError } = await supabaseClient.from('usuarios_acesso').insert([
         { email: email, nome: nome, status: 'pendente' }
       ]);
@@ -77,22 +90,22 @@ async function validarAcesso(user) {
 
       showStatusArea("Acesso Solicitado", "Sua solicitação foi enviada. Alberto precisa aprovar seu acesso no Supabase.");
     } else {
-      console.log("Status atual do usuário:", data.status);
-      if (data.status === 'aprovado') {
-        console.log("Acesso aprovado! Mostrando o app.");
+      console.log("Status do usuário no BD:", userInDb.status);
+      if (userInDb.status === 'aprovado') {
+        console.log("Aprovado! Ingressando no sistema.");
         showApp();
-      } else if (data.status === 'pendente') {
-        console.log("Acesso pendente. Mostrando área de status.");
+      } else if (userInDb.status === 'pendente') {
+        console.log("Pendente. Mantendo tela de aguarde.");
         showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
       } else {
-        console.warn("Acesso negado (status diferente de aprovado/pendente):", data.status);
-        showLoginError("Acesso negado para este usuário.");
+        console.warn("Status desconhecido:", userInDb.status);
+        showLoginError("Acesso negado ou conta suspensa.");
         await supabaseClient.auth.signOut();
       }
     }
   } catch (err) {
-    console.error("Erro completo na validação:", err);
-    showLoginError("Falha na conexão com o banco de dados. Verifique o console.");
+    console.error("🆘 Falha crítica na validação:", err);
+    showLoginError("Falha na conexão com o banco. Veja o console.");
   }
 }
 
