@@ -30,9 +30,8 @@ function initSupabase() {
   if (window.supabase) {
     supabaseClient = window.supabase.createClient(SB_URL, SB_KEY, {
       auth: {
-        storage: window.sessionStorage, // USA SESSION STORAGE PARA PULAR O LOCKMANAGER (TRAVA DO CHROME)
-        autoRefreshToken: true,
         persistSession: true,
+        autoRefreshToken: true,
         detectSessionInUrl: true
       }
     });
@@ -99,14 +98,13 @@ async function validarAcesso(user) {
     } else {
       console.log("Status do usuário no BD:", userInDb.status);
       if (userInDb.status === 'aprovado') {
-        console.log("Aprovado! Mostrando botão de entrada.");
-        // Em vez de entrar direto, mostra o botão conforme pedido do usuário
+        console.log("✅ Aprovado! Mostrando botão de entrada.");
         showStatusArea("Acesso Autorizado!", "Seu acesso está liberado. Clique no botão abaixo para entrar.", true);
       } else if (userInDb.status === 'pendente') {
-        console.log("Pendente. Mantendo tela de aguarde.");
+        console.log("⏳ Pendente. Mantendo tela de aguarde.");
         showStatusArea("Aguardando Aprovação", "Seu perfil ainda está pendente. Peça para o Alberto liberar seu acesso.");
       } else {
-        console.warn("Status desconhecido:", userInDb.status);
+        console.warn("🚫 Status desconhecido:", userInDb.status);
         showLoginError("Acesso negado ou conta suspensa.");
         await supabaseClient.auth.signOut();
       }
@@ -150,7 +148,7 @@ window.loginGoogle = async function () {
   }
 };
 
-window.loginEmail = async function () {
+window.verificarEmail = async function () {
   const emailInput = document.getElementById('login-email');
   const email = emailInput.value.trim().toLowerCase();
 
@@ -165,7 +163,57 @@ window.loginEmail = async function () {
   }
 
   if (loginError) loginError.classList.add('hidden');
-  if (loginStatusArea) loginStatusArea.classList.add('hidden');
+
+  // Tentar consultar anonimamente para ver o status
+  try {
+    const { data, error } = await supabaseClient
+      .from('usuarios_acesso')
+      .select('status')
+      .eq('email', email);
+
+    if (error) {
+      console.warn("Consulta anônima falhou (RLS?), procedendo para Magic Link normal.");
+      // Se falhar (provavelmente por RLS), apenas mostra o botão de Magic Link
+      document.getElementById('btn-verificar-email').classList.add('hidden');
+      document.getElementById('btn-login-email').classList.remove('hidden');
+      return;
+    }
+
+    const userInDb = data && data.length > 0 ? data[0] : null;
+
+    if (userInDb && userInDb.status === 'aprovado') {
+      showStatusArea("Acesso Autorizado!", "Seu e-mail está liberado em nossa base. Agora você pode entrar clicando abaixo ou usando o Google.", true);
+      // Se ele já estiver autorizado, mostramos o Google botão também se estiver escondido
+      if (btnLoginGoogle) {
+        btnLoginGoogle.classList.remove('hidden');
+        btnLoginGoogle.style.setProperty('display', 'flex', 'important');
+      }
+    } else {
+      // Se for novo ou pendente, mostra o botão de Link de Acesso
+      document.getElementById('btn-verificar-email').classList.add('hidden');
+      document.getElementById('btn-login-email').classList.remove('hidden');
+      if (userInDb && userInDb.status === 'pendente') {
+        showLoginError("Seu acesso ainda está PENDENTE. Você pode solicitar o link para tentar logar, mas precisará de aprovação.");
+      }
+    }
+  } catch (err) {
+    console.error("Erro verificarEmail:", err);
+    // Fallback: mostra o botão de login normal
+    document.getElementById('btn-verificar-email').classList.add('hidden');
+    document.getElementById('btn-login-email').classList.remove('hidden');
+  }
+};
+
+window.loginEmail = async function () {
+  const emailInput = document.getElementById('login-email');
+  const email = emailInput.value.trim().toLowerCase();
+
+  if (!email) {
+    showLoginError("Por favor, digite seu e-mail.");
+    return;
+  }
+
+  if (loginError) loginError.classList.add('hidden');
 
   try {
     const { error } = await supabaseClient.auth.signInWithOtp({
@@ -184,7 +232,7 @@ window.loginEmail = async function () {
   }
 };
 
-function showApp() {
+window.showApp = function () {
   console.log("🏙️ Forçando entrada no sistema (showApp)...");
   updateElements();
   if (loginScreen) {

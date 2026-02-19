@@ -24,9 +24,13 @@
 
       <div id="email-login-area">
         <div class="input-group">
-          <input type="email" id="login-email" placeholder="E-mail" required>
+          <input type="email" id="login-email" placeholder="e-mail" required
+            oninput="this.value = this.value.toLowerCase()">
         </div>
-        <button id="btn-login-email" class="btn-primary" onclick="loginEmail()">
+        <button id="btn-verificar-email" class="btn-primary" onclick="verificarEmail()">
+          <i class="fas fa-search"></i> Verificar Acesso
+        </button>
+        <button id="btn-login-email" class="btn-primary hidden" onclick="loginEmail()">
           <i class="fas fa-paper-plane"></i> Receber Link de Acesso
         </button>
       </div>
