@@ -1,5 +1,5 @@
 
-console.log("--- SCRIPT.JS CARREGADO (Versão: 23:55) ---");
+console.log("--- SCRIPT.JS CARREGADO (Versão: 00:00) ---");
 
 /* =========================
    CONFIGURAÇÃO SUPABASE
@@ -150,8 +150,17 @@ window.loginGoogle = async function () {
 };
 
 function showApp() {
-  if (loginScreen) loginScreen.classList.add('hidden');
-  if (appContainer) appContainer.classList.remove('hidden');
+  console.log("🏙️ Executando showApp()...");
+  if (loginScreen) {
+    loginScreen.classList.add('hidden');
+    console.log("Login screen ocultada.");
+  }
+  if (appContainer) {
+    appContainer.classList.remove('hidden');
+    console.log("App container visível.");
+  } else {
+    console.error("ERRO: appContainer não encontrado!");
+  }
 }
 
 function showLogin() {
